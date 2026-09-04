@@ -19,8 +19,8 @@ the Cyber Kill Chain and MITRE ATT&CK.
 
 1. **Cases data model + intake** — extend the existing backend/GUI shell ← *planned, not started*
 2. Static triage: rizin pre-triage, Ghidra headless, YARA, PE parsing
-3. Dynamic sandbox on the VMware Fusion lab; Sysmon → existing Elastic SIEM
-4. ATT&CK mapping layer + per-case technique heatmap
+3. Dynamic sandbox on the VMware Fusion lab (ARM-only for the POC); Sysmon → Elastic SIEM
+4. ATT&CK mapping layer, per-case technique heatmap, findings mirrored back into Elastic
 5. Claude API summarisation + auto-drafted YARA
 6. Full merge into the single-pane GUI alongside the pentest tooling
 

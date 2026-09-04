@@ -57,7 +57,15 @@ Same vault, same rules. Present in Phase 1 with no producers yet; Phase 2/3 fill
 `id`, `case_id`, `sample_id` (null), `job_id` (null), `producer`, `type`, `title`,
 `description`, `severity`, `confidence` (float 0–1), **`attack_technique_ids` json list**,
 **`kill_chain_phase`** (enum: recon/weaponisation/delivery/exploitation/installation/c2/actions),
-`evidence` json, `dedupe_key` (unique per case), `created_at`.
+`evidence` json, `dedupe_key` (unique per case), `created_at`,
+`elastic_doc_id` (null), `mirrored_at` (null).
+
+The two `elastic_*` columns support the decided bidirectional Elastic design: findings are
+mirrored into a `necropsy-findings-*` ECS data stream so they're pivotable in Kibana next to
+raw lab telemetry. Phase 1 only ships the `FindingSink` interface with a `NullSink` default
+— SQLite stays the system of record, the mirror is best-effort and replayable, and CI never
+needs a cluster. The columns exist now so Phase 4 is a new sink implementation plus a
+`necropsy reindex` backfill, not a migration against live case data.
 
 Phase 1 emits a handful: `pe_no_signature`, `high_entropy`, `arch_mismatch_risk`,
 `known_sample_reappearance` (sample already seen in another case). Enough to prove the
@@ -135,6 +143,8 @@ src/necropsy/intake/service.py              ingest_file(): hash -> dedupe -> vau
                                               case_sample -> audit -> enqueue identify job
 
 src/necropsy/cases/service.py               create/close, case timeline assembly
+src/necropsy/sinks/base.py                  FindingSink protocol + NullSink default
+                                              (Elastic impl lands in Phase 4)
 src/necropsy/scoring/rules.py               Phase-1 risk scorer over RiskFactor vocabulary
 src/necropsy/scoring/proposals.py           post-job proposal generation
 
@@ -148,8 +158,8 @@ src/necropsy/api/routes/cases.py samples.py jobs.py findings.py actions.py
 src/necropsy/api/ws.py                      pub/sub subscriber -> WS fan-out
 src/necropsy/api/deps.py                    session + host services injection
 
-src/necropsy/standalone/app.py              dev harness w/ StandaloneHost
-src/necropsy/cli.py                         typer: serve / worker / case new / ingest
+src/necropsy/standalone/app.py              primary app for Phases 1-5, w/ StandaloneHost
+src/necropsy/cli.py                         typer: serve / worker / case new / ingest / reindex
 
 tests/conftest.py                           tmp vault, in-memory-ish sqlite, fake host
 tests/test_vault.py                         round-trip, perms, no-exec-bit, audit on read
@@ -182,7 +192,7 @@ makes accidental ingest of the wrong file harder.
 
 ## 5. Two flags worth setting now, not later
 
-- **`Case.ai_disclosure_allowed`** (default false). Phase 5 sends decompiled functions and
+- **`Case.ai_disclosure_allowed`** (default false, confirmed). Phase 5 sends decompiled functions and
   strings to the Claude API. Some samples will come from client engagements where that is
   a contractual problem. A per-case boolean checked at the top of every `ai/` call, set
   once at case creation, is trivial now and awkward to retrofit after the AI layer exists.
@@ -191,7 +201,9 @@ makes accidental ingest of the wrong file harder.
 
 ## 6. Acceptance criteria
 
-1. `necropsy serve` + `necropsy worker` run standalone with no host app present.
+1. `necropsy serve` + `necropsy worker` run standalone with no host app present — which,
+   given the pentest backend is still an early prototype, is the deployment mode for now.
+   The GUI panel points at Necropsy's own port; the mount seam is still exercised by a test.
 2. `necropsy ingest --case <id> ./sample.bin` stores the sample encrypted at 0o400,
    dedupes on second ingest, and writes audit rows for both.
 3. The same sample added to a second case produces one vault object, two `case_samples`,

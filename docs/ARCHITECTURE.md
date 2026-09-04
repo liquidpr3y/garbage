@@ -36,18 +36,30 @@ The host does `importlib.metadata.entry_points(group="pentestgui.modules")` at b
 mounts whatever it finds under `/api/v1/{module.slug}`. Adding Necropsy is then
 `pip install -e ../necropsy` and a restart. Removing it is `pip uninstall`.
 
-### Standalone mode is mandatory, not a nicety
+### Standalone-first (decided: the host backend is an early prototype)
 
-`necropsy.standalone.app` is a dev-only FastAPI app that mounts the same router with a
-`StandaloneHost` implementation of `HostServices`. Without this you cannot develop,
-test or CI the module without booting the whole macOS app, and the two projects will
-silently fuse. Every `HostServices` method gets a local fallback:
+`necropsy.standalone.app` is a full FastAPI app that mounts the same router with a
+`StandaloneHost` implementation of `HostServices`.
+
+Because the pentest backend is still an early prototype, **standalone is the primary
+deployment mode for Phases 1-5, not a dev harness.** Necropsy runs as its own uvicorn
+process on a local port and the macOS GUI talks to it as a second base URL alongside the
+pentest backend. The mount seam above stays built and tested from day one, but nothing on
+the roadmap blocks on the host backend maturing - when it does, mounting in-process is a
+config change rather than a port.
+
+That inverts one thing: **Necropsy's `contracts/` package becomes the reference definition
+of the shared vocabulary**, and the pentest backend adopts it rather than the reverse. Keep
+those three files (`host.py`, `events.py`, `risk.py`) small and dependency-free so the host
+can depend on them without inheriting Necropsy.
+
+Every `HostServices` method gets a local fallback:
 
 | HostServices | Host impl | StandaloneHost impl |
 |---|---|---|
 | `redis()` | host's pool | local `redis://localhost:6379/1` |
 | `publish(channel, event)` | host event bus | Redis pub/sub |
-| `actor()` | logged-in operator | `"local"` |
+| `actor()` | logged-in operator | `NECROPSY_OPERATOR` env, default `"local"` |
 | `artifact_root()` | host vault path | `~/.necropsy/vault` |
 | `resolve_engagement(ref)` | host engagement store | returns `None` |
 | `risk_policy()` | host thresholds | packaged defaults |
@@ -205,7 +217,28 @@ under Windows' x86 emulation or behave unrepresentatively — and, importantly, 
 that *detects* emulation and goes dormant looks identical to a benign sample in your
 telemetry. That's an analysis-correctness problem, not just a compatibility one.
 
-The architecture does not solve this in Phase 1; it just refuses to foreclose it:
+**Decision: the POC stays ARM-only.** No Intel box, no cloud x86 host. That's a defensible
+call, but it has two consequences worth stating now rather than discovering in Phase 3:
+
+1. **The sandbox stays fully valid for a large slice of the corpus.** Script and managed
+   samples — VBA maldocs, PowerShell, JScript/WSH, LNK chains, .NET assemblies, installer
+   abuse — execute faithfully on Windows-on-ARM, because they run through interpreters and
+   runtimes that are native ARM64. For delivery and initial-access tradecraft, which is most
+   of what a SOC actually triages, the lab is genuinely representative. Bias Phase 3's test
+   corpus toward these deliberately.
+2. **Native x86 payloads produce untrustworthy behavioural verdicts.** Dormancy under
+   emulation is indistinguishable from benignity, so a quiet run is not evidence. Two cheap
+   mitigations: every detonation record carries a `target_fingerprint` and an
+   `emulation_fidelity` grade, and an x86-on-ARM64 run auto-emits a warning finding instead
+   of a clean result.
+
+Phase-ordering consequence: **Phase 2 (static) carries more analytical weight than it
+otherwise would, and Phase 3's real deliverable is the pipeline plus the Elastic plumbing
+rather than trustworthy behavioural verdicts for native x86.** Weight the effort
+accordingly. `remote.py` stays a stub against the ABC so an Intel NUC later is one class,
+not a rewrite.
+
+The architecture therefore doesn't solve x86 now; it refuses to foreclose it:
 
 ```python
 class DetonationTarget(ABC):
@@ -217,7 +250,7 @@ class DetonationTarget(ABC):
     async def revert(self) -> None: ...
 ```
 
-Rules that keep the later x86 host cheap:
+Rules that keep a later x86 host cheap:
 
 - **There is no `LocalhostTarget`.** Not commented out — never written. The only way to
   execute a sample is through a target that is definitionally a separate machine.
@@ -226,8 +259,7 @@ Rules that keep the later x86 host cheap:
   ("x86 sample on ARM64 target — emulation artefacts likely, dormancy is not evidence of
   benignity"), which is exactly the ATT&CK T1497 confusion you want surfaced, not hidden.
 - Transport is abstracted from the start: `vmware.py` uses `vmrun` locally, `remote.py`
-  is the same ABC over a network transport. Adding an Intel NUC or a cloud x86 VM later
-  is one class, not a rewrite.
+  is the same ABC over a network transport, left as a stub for now.
 - Detonation results carry `target_fingerprint` so you can tell later which findings came
   from an emulated run.
 
@@ -235,11 +267,22 @@ Rules that keep the later x86 host cheap:
 
 ## 6. Integration points that must not be duplicated
 
-- **Elastic SIEM** — the lab's existing Basic-tier cluster is the telemetry sink. Necropsy
-  ships Sysmon/Zeek data to it via the in-guest Elastic Agent and *queries it back* for
-  correlation. It does not stand up its own logging stack, and does not store raw event
-  volume in SQLite — only derived `Finding` rows plus the query that produced them, so a
-  finding is always re-verifiable in Kibana.
+- **Elastic SIEM — bidirectional (decided).** The lab's existing Basic-tier cluster is
+  the telemetry sink. Necropsy ships Sysmon/Zeek data to it via the in-guest Elastic Agent,
+  *queries it back* for correlation, and **mirrors its own `Finding` rows into a
+  `necropsy-findings-*` data stream in ECS**, so case findings are pivotable in Kibana
+  alongside raw lab telemetry. It does not stand up a parallel logging stack, and does not
+  store raw event volume in SQLite — only derived findings plus the query that produced
+  them, so every finding stays re-verifiable at source.
+
+  Build this as a `FindingSink` interface in Phase 1 with a no-op default; the Elastic
+  implementation lands in Phase 4. **SQLite stays the system of record and the mirror is
+  best-effort and replayable** — a SIEM outage must never fail an ingest or lose a finding.
+  Findings therefore carry `elastic_doc_id` and `mirrored_at` columns from Phase 1, and a
+  `necropsy reindex` command replays anything unmirrored. ECS mapping: `event.kind: "signal"`,
+  `threat.technique.id[]` from `attack_technique_ids`, `threat.tactic.name` from the kill
+  chain phase, `event.severity`, `file.hash.sha256`, plus `necropsy.case_id` and
+  `necropsy.finding_id` as custom fields for the pivot back into the GUI.
 - **pySigma** — Sigma rules compile to Elastic queries at runtime. Rules live in
   `attack/sigma/`, sourced from the public Sysmon-to-ATT&CK corpora rather than authored
   from zero.
