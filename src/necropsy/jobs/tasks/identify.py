@@ -12,14 +12,14 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from necropsy.config import get_settings
-from necropsy.contracts.events import Event, EventType, case_channel
 from necropsy.contracts.host import HostServices
 from necropsy.db.models import AnalysisJob
-from necropsy.db.repos import actions as actions_repo, cases as cases_repo, samples as samples_repo
+from necropsy.db.repos import cases as cases_repo, samples as samples_repo
 from necropsy.enums import Arch, FileType, JobKind, Producer, Severity
 from necropsy.intake.identify import PACKED_ENTROPY_THRESHOLD, identify, is_probably_packed
 from necropsy.intake.service import open_vault
 from necropsy.jobs.tasks.base import emit_finding
+from necropsy.jobs.tasks.propose import publish_proposals
 from necropsy.scoring.proposals import after_identify
 
 NATIVE_TYPES = {FileType.PE, FileType.ELF, FileType.MACHO}
@@ -161,28 +161,7 @@ def run(session: Session, host: HostServices, job: AnalysisJob) -> dict[str, Any
         ai_disclosure_allowed=bool(case and case.ai_disclosure_allowed),
     )
 
-    # Re-running identification replaces its old advice rather than stacking a
-    # second copy of it on the operator's queue.
-    actions_repo.supersede_open(session, job.case_id, [p.kind for p in proposals])
-    for proposal in proposals:
-        action = actions_repo.create_from_proposal(
-            session, proposal, case_id=job.case_id, sample_id=sample.id, origin_job_id=job.id
-        )
-        host.publish(
-            case_channel(job.case_id),
-            Event(
-                type=EventType.ACTION_PROPOSED,
-                case_id=job.case_id,
-                payload={
-                    "action_id": action.id,
-                    "kind": action.kind,
-                    "title": action.title,
-                    "risk_score": action.risk_score,
-                    "risk_band": action.risk_band,
-                    "available": action.available,
-                },
-            ),
-        )
+    publish_proposals(session, host, job, sample, proposals)
 
     return {
         "file_type": ident.file_type.value,

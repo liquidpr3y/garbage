@@ -94,6 +94,8 @@ class KillChainPhase(str, Enum):
 
 class Producer(str, Enum):
     INTAKE = "intake"
+    STRINGS = "strings"
+    CAPABILITY = "capability"
     PE = "pe"
     YARA = "yara"
     RIZIN = "rizin"
@@ -113,6 +115,9 @@ class ActionState(str, Enum):
 
 
 class ArtifactKind(str, Enum):
+    STRINGS = "strings"
+    STATIC_REPORT = "static_report"
+    DECOMPILATION = "decompilation"
     UNPACKED = "unpacked"
     PCAP = "pcap"
     MEMDUMP = "memdump"

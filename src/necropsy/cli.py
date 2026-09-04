@@ -138,6 +138,45 @@ def ingest(
 
 
 @app.command()
+def triage(
+    sha256: str,
+    case: str = typer.Option(..., "--case", "-c", help="Case id"),
+) -> None:
+    """Run static triage on a sample already in a case."""
+    from necropsy.db.repos import jobs as jobs_repo, samples as samples_repo
+    from necropsy.db.session import session_scope
+    from necropsy.enums import JobKind
+    from necropsy.jobs.runner import InlineRunner
+
+    with session_scope() as session:
+        sample = samples_repo.get_by_sha256(session, sha256.lower())
+        if sample is None:
+            raise typer.BadParameter(f"no sample with sha256 {sha256}")
+        job, _ = jobs_repo.enqueue_or_get(
+            session, case_id=case, kind=JobKind.STATIC_TRIAGE,
+            sample_id=sample.id, sample_sha256=sample.sha256,
+        )
+        job_id = job.id
+
+    InlineRunner().submit(job_id, JobKind.STATIC_TRIAGE.value)
+
+    with session_scope() as session:
+        from necropsy.db.repos import findings as findings_repo, jobs as jobs_repo2
+
+        done = jobs_repo2.get(session, job_id)
+        typer.echo(f"job {job_id} {done.state.value}")
+        if done.error:
+            typer.secho(done.error.splitlines()[0], fg=typer.colors.RED)
+            raise typer.Exit(1)
+        for finding in sorted(findings_repo.for_case(session, case), key=lambda f: f.type):
+            techniques = ",".join(finding.attack_technique_ids) or "-"
+            typer.echo(
+                f"  {finding.severity.value:<8} {finding.confidence:<5} "
+                f"{finding.type:<42} {techniques}"
+            )
+
+
+@app.command()
 def reindex(limit: int = 1000) -> None:
     """Replay findings the finding sink has not confirmed.
 
@@ -165,7 +204,17 @@ def reindex(limit: int = 1000) -> None:
 
 @app.command()
 def doctor() -> None:
-    """Report what this install can and cannot do."""
+    """Report what this install can and cannot do.
+
+    Worth running before triaging anything that matters: every line that says
+    "no" is a class of finding this machine will silently not produce.
+    """
+    import shutil
+
+    from necropsy.analysis.ghidra import have_ghidra, headless_binary
+    from necropsy.analysis.pe import have_lief
+    from necropsy.analysis.rizin import have_rizin, rizin_binary
+    from necropsy.analysis.yara_rules import have_yara, rule_files
     from necropsy.intake.hashing import have_tlsh
     from necropsy.intake.identify import have_magic
 
@@ -174,12 +223,23 @@ def doctor() -> None:
     typer.echo(f"vault root      {settings.vault_root}")
     typer.echo(f"job runner      {settings.job_runner}")
     typer.echo(f"target arches   {', '.join(settings.target_arches) or '(none)'}")
-    typer.echo(f"TLSH            {'yes' if have_tlsh() else 'no  (pip install necropsy[analysis])'}")
-    typer.echo(f"libmagic        {'yes' if have_magic() else 'no  (pip install necropsy[analysis])'}")
+    typer.echo("")
 
-    import shutil
+    extras = "pip install necropsy[analysis]"
+    _line("LIEF (PE detail)", have_lief(), extras)
+    _line("YARA", have_yara(), extras)
+    _line("TLSH", have_tlsh(), extras)
+    _line("libmagic", have_magic(), extras)
+    _line("rizin", have_rizin(), "install rizin, or set NECROPSY_RIZIN_PATH",
+          rizin_binary() or "")
+    _line("Ghidra", have_ghidra(), "set NECROPSY_GHIDRA_HOME to the install root",
+          str(headless_binary() or ""))
+    _line("ssdeep binary", bool(shutil.which("ssdeep")),
+          "optional; GPL, so shelled out rather than linked")
 
-    typer.echo(f"ssdeep binary   {shutil.which('ssdeep') or 'not found (optional, GPL, shelled out)'}")
+    packaged = sum(1 for _p, is_packaged in rule_files() if is_packaged)
+    operator = sum(1 for _p, is_packaged in rule_files() if not is_packaged)
+    typer.echo(f"\nYARA rule files {packaged} packaged, {operator} operator-supplied")
 
     try:
         import redis as redis_lib
@@ -192,6 +252,13 @@ def doctor() -> None:
 
     if not settings.elastic_url:
         typer.echo("elastic         not configured (finding mirror is a no-op until Phase 4)")
+
+
+def _line(label: str, ok: bool, remedy: str, detail: str = "") -> None:
+    if ok:
+        typer.secho(f"{label:<16} yes  {detail}".rstrip(), fg=typer.colors.GREEN)
+    else:
+        typer.secho(f"{label:<16} no   ({remedy})", fg=typer.colors.YELLOW)
 
 
 if __name__ == "__main__":

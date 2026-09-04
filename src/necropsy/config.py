@@ -36,6 +36,19 @@ class Settings(BaseSettings):
     # pydantic-settings insist on JSON for a comma-separated list.
     target_arches: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["arm64"])
 
+    # Extra YARA rule files or directories, beyond the packaged set.
+    yara_rule_paths: Annotated[list[str], NoDecode] = Field(default_factory=list)
+
+    # Ghidra installation root. Blank means the decompile job reports itself
+    # unavailable rather than failing.
+    ghidra_home: Path | None = None
+    ghidra_timeout_s: int = 1800
+    ghidra_max_functions: int = 4000
+
+    # rizin binary for fast pre-triage. Resolved on PATH when unset.
+    rizin_path: str | None = None
+    rizin_timeout_s: int = 120
+
     # Phase 4. Blank means the finding sink stays a no-op.
     elastic_url: str | None = None
     elastic_api_key: str | None = None
@@ -49,12 +62,19 @@ class Settings(BaseSettings):
     def _expand(cls, v: Path) -> Path:
         return Path(os.path.expandvars(str(v))).expanduser()
 
-    @field_validator("target_arches", mode="before")
+    @field_validator("target_arches", "yara_rule_paths", mode="before")
     @classmethod
     def _split(cls, v: object) -> object:
         if isinstance(v, str):
             return [p.strip() for p in v.split(",") if p.strip()]
         return v
+
+    @field_validator("ghidra_home", mode="before")
+    @classmethod
+    def _expand_opt(cls, v: object) -> object:
+        if isinstance(v, str) and v.strip():
+            return Path(os.path.expandvars(v)).expanduser()
+        return v or None
 
     def vault_key_bytes(self) -> bytes:
         """32-byte AES key: from env, else generated once beside the vault.

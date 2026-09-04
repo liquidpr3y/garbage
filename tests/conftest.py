@@ -182,6 +182,58 @@ def pe_sample(tmp_path: Path) -> Path:
     return make_pe(tmp_path / "invoice.exe")
 
 
+# -- richer Phase 2 fixtures, built with a real import table ------------------
+
+
+def loader_spec() -> "PESpec":
+    """A shape that trips several capability detectors at once.
+
+    Inert: the entry point is a `ret` and no imported function is ever called.
+    """
+    from pebuilder import PESpec
+
+    return PESpec(
+        imports={
+            "kernel32.dll": [
+                "VirtualAllocEx", "WriteProcessMemory", "CreateRemoteThread",
+                "OpenProcess", "LoadLibraryA", "GetProcAddress",
+            ],
+            "advapi32.dll": ["RegSetValueExA", "OpenSCManagerA", "CreateServiceA"],
+            "wininet.dll": ["InternetOpenA", "InternetConnectA", "HttpSendRequestA"],
+        },
+        add_wx_section=True,
+        tls_callbacks=2,
+        pdb_path=r"C:\dev\loader\x64\Release\loader.pdb",
+        extra_rdata_strings=[
+            r"Software\Microsoft\Windows\CurrentVersion\Run",
+            "http://185.220.101.44/gate.php",
+            "vssadmin delete shadows",
+            "Win32_ShadowCopy",
+            "VBoxService",
+            "vmtoolsd",
+            "Mozilla/5.0 (Windows NT 10.0) Loader/2.1",
+        ],
+    )
+
+
+@pytest.fixture
+def loader_sample(tmp_path: Path) -> Path:
+    from pebuilder import build
+
+    return build(tmp_path / "loader.exe", loader_spec())
+
+
+@pytest.fixture
+def plain_sample(tmp_path: Path) -> Path:
+    """A PE with nothing interesting in it -- the true-negative control."""
+    from pebuilder import PESpec, build
+
+    return build(
+        tmp_path / "helper.exe",
+        PESpec(imports={"kernel32.dll": ["GetLastError", "CloseHandle", "Sleep"]}),
+    )
+
+
 @pytest.fixture
 def x86_packed_sample(tmp_path: Path) -> Path:
     return make_pe(tmp_path / "packed.exe", machine=0x014C, high_entropy=True)

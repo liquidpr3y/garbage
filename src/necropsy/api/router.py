@@ -11,7 +11,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from necropsy.api import ws
-from necropsy.api.routes import actions, cases, findings, jobs, samples
+from necropsy.api.routes import actions, analysis, cases, findings, jobs, samples
 
 router = APIRouter()
 router.include_router(cases.router)
@@ -19,6 +19,7 @@ router.include_router(samples.router)
 router.include_router(jobs.router)
 router.include_router(findings.router)
 router.include_router(actions.router)
+router.include_router(analysis.router)
 router.include_router(ws.router)
 
 

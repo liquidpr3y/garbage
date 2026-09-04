@@ -15,9 +15,6 @@ from necropsy.enums import JobKind
 Handler = Callable[..., dict[str, Any]]
 
 NOT_YET_IMPLEMENTED: dict[JobKind, str] = {
-    JobKind.STATIC_TRIAGE: "Phase 2 (rizin pre-triage + PE parsing)",
-    JobKind.YARA_SCAN: "Phase 2 (YARA)",
-    JobKind.GHIDRA_DECOMPILE: "Phase 2 (Ghidra headless)",
     JobKind.DETONATE: "Phase 3 (VMware Fusion sandbox)",
     JobKind.AI_SUMMARISE: "Phase 5 (Claude API)",
 }
@@ -41,6 +38,18 @@ def handler_for(kind: JobKind) -> Handler:
         return run
     if kind is JobKind.HASH_PIVOT:
         from necropsy.jobs.tasks.hash_pivot import run
+
+        return run
+    if kind is JobKind.STATIC_TRIAGE:
+        from necropsy.jobs.tasks.static_triage import run
+
+        return run
+    if kind is JobKind.YARA_SCAN:
+        from necropsy.jobs.tasks.yara_scan import run
+
+        return run
+    if kind is JobKind.GHIDRA_DECOMPILE:
+        from necropsy.jobs.tasks.ghidra_decompile import run
 
         return run
     raise KeyError(f"no handler registered for {kind}")

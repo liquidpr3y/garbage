@@ -24,6 +24,7 @@ class StandaloneHost:
     def __init__(self, redis_client: Any | None = None) -> None:
         self._redis = redis_client
         self._settings = get_settings()
+        self._publish_warned = False
 
     def redis(self) -> Any:
         if self._redis is None:
@@ -34,11 +35,20 @@ class StandaloneHost:
 
     def publish(self, channel: str, event: Event) -> None:
         # Event delivery is a UI nicety. Losing it must never fail the analysis
-        # that produced it, so a dead Redis degrades to a log line.
+        # that produced it, so a dead broker degrades to a log line -- once.
+        # A triage pass emits dozens of events, and repeating the same warning
+        # per event buries the analysis output the operator came for.
         try:
             self.redis().publish(channel, event.model_dump_json())
         except Exception as exc:  # noqa: BLE001
-            log.warning("event publish failed on %s: %s", channel, exc)
+            if not self._publish_warned:
+                self._publish_warned = True
+                log.warning(
+                    "event publishing is unavailable (%s); the live case stream will be "
+                    "empty for this process. Analysis is unaffected.", exc,
+                )
+            else:
+                log.debug("event publish failed on %s: %s", channel, exc)
 
     def actor(self) -> str:
         return self._settings.operator

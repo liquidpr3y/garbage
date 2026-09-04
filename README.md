@@ -11,14 +11,15 @@ the Cyber Kill Chain and MITRE ATT&CK.
 | | |
 |---|---|
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Plug-in structure, data flow, module layout, licensing constraints |
-| [PHASE1.md](docs/PHASE1.md) | Concrete build plan: data model, vault, file list, API, acceptance criteria |
+| [PHASE1.md](docs/PHASE1.md) | Cases, vault, intake, findings, risk-scored proposals |
+| [PHASE2.md](docs/PHASE2.md) | Static triage: capabilities, YARA, Ghidra, and where ATT&CK tagging happens |
 | [HOST_INTEGRATION.md](docs/HOST_INTEGRATION.md) | The contract the pentest backend must satisfy |
 | [SAFETY.md](docs/SAFETY.md) | Handling invariants, scope boundary, repo hygiene |
 
 ## Roadmap
 
 1. **Cases data model + intake** — cases, vault, identification, findings, risk-scored proposals ← **built**
-2. Static triage: rizin pre-triage, Ghidra headless, YARA, PE parsing
+2. **Static triage** — PE structure, strings/IOCs, ATT&CK-mapped capabilities, YARA, Ghidra decompilation ← **built**
 3. Dynamic sandbox on the VMware Fusion lab (ARM-only for the POC); Sysmon → Elastic SIEM
 4. ATT&CK mapping layer, per-case technique heatmap, findings mirrored back into Elastic
 5. Claude API summarisation + auto-drafted YARA
@@ -34,6 +35,7 @@ necropsy doctor                      # reports what this install can actually do
 
 CASE=$(necropsy case new "Invoice phish - Sept" --tag phishing)
 necropsy ingest ./sample.bin --case "$CASE"
+necropsy triage <sha256> --case "$CASE"   # PE, strings, capabilities, YARA
 necropsy serve                       # http://127.0.0.1:8010/api/v1/necropsy
 necropsy worker                      # needs Redis; or set NECROPSY_JOB_RUNNER=inline
 ```

@@ -25,7 +25,7 @@ dependencies = [
 # Native/optional analysis deps. Necropsy degrades gracefully without every one of
 # these: see intake/identify.py and intake/hashing.py. Keeping them optional is what
 # lets CI run with no native toolchain.
-analysis = ["py-tlsh>=4.5", "lief>=0.14", "python-magic>=0.4.27"]
+analysis = ["py-tlsh>=4.5", "lief>=0.14", "python-magic>=0.4.27", "yara-python>=4.3"]
 dev = ["pytest>=8", "httpx>=0.27", "fakeredis>=2.21"]
 
 [project.scripts]
@@ -41,6 +41,9 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["error::DeprecationWarning:necropsy.*"]
+markers = [
+    "slow: needs an external analyser (Ghidra) installed; skipped unless available",
+]
 
 [tool.ruff]
 line-length = 100

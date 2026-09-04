@@ -123,6 +123,25 @@ class Vault:
         )
         return VaultRef(sha256, self.uri_for(sha256), plain_size, stored)
 
+    def put_bytes(self, data: bytes, *, actor: str = "local") -> VaultRef:
+        """Store an in-memory blob under its own content address.
+
+        Derived artifacts -- a strings dump, a decompilation export, later a
+        PCAP or a memory dump -- get exactly the same handling as a sample.
+        A payload dumped out of a packer is still a payload.
+        """
+        import hashlib
+
+        sha256 = hashlib.sha256(data).hexdigest()
+        fd, tmp_name = tempfile.mkstemp(prefix=".blob-", suffix=".tmp")
+        tmp = Path(tmp_name)
+        try:
+            with os.fdopen(fd, "wb") as handle:
+                handle.write(data)
+            return self.put(tmp, sha256, actor=actor)
+        finally:
+            tmp.unlink(missing_ok=True)
+
     # -- read ---------------------------------------------------------------
 
     @contextmanager

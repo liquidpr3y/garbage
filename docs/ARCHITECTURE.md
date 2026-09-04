@@ -313,3 +313,13 @@ binding, `rzpipe` is rizin's. Pick one fork. Recommendation: **rizin + rzpipe** 
 API surface, and its analysis JSON is more stable across versions, which matters when
 you're parsing it as a pre-triage gate. Either way it's a subprocess, so the choice is
 reversible.
+
+**Built as of Phase 2:** rizin is invoked as a subprocess (`rizin -q -c ij -c iej -c ilj`)
+rather than through `rzpipe`, because a long-lived pipe buys nothing for a one-shot triage
+and a plain subprocess keeps the LGPL boundary trivially obvious. Its JSON keys have moved
+across releases, so the parser tolerates several shapes — worth one smoke test against the
+rizin build on the analysis Mac. rizin is enrichment and never gates a finding.
+
+**Ghidra script language:** the headless export script is written in the subset of Python
+valid under both Jython 2.7 (today) and CPython 3 / PyGhidra (soon). Jython is deprecated
+upstream, and that single file is the whole migration surface. See PHASE2.md §6.
