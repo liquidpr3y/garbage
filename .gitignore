@@ -1,0 +1,34 @@
+# --- Sample containment backstop. The primary control is the vault (docs/SAFETY.md);
+# --- this is here so a mistake cannot become a public commit.
+vault/
+samples/
+*.bin
+*.exe
+*.dll
+*.dmg
+*.vmdk
+*.sys
+*.scr
+*.msi
+ghidra_projects/
+*.pcap
+*.evtx
+
+# Secrets and lab topology
+.env
+*.key
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Local state
+*.db
+*.db-wal
+*.db-shm
+.necropsy/

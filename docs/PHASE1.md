@@ -7,7 +7,9 @@ with the sample stored safely and a complete audit trail. No disassembly, no det
 **Deliberately deferred:** Ghidra, rizin, YARA, sandbox, ATT&CK mapping, Claude API.
 Phase 1 exists to make Phases 2–5 additive rather than structural.
 
-**Rough size:** ~1,400 lines across ~30 files. Two sittings.
+**Status: built.** Implemented on `claude/malware-analysis-platform-vopeqt`; 77 tests pass
+with no network, no Redis and no lab. Section 6 records what was verified, and section 7
+the places the build departed from this plan.
 
 ---
 
@@ -50,8 +52,14 @@ Same vault, same rules. Present in Phase 1 with no producers yet; Phase 2/3 fill
 ### `analysis_jobs`
 `id`, `case_id`, `sample_id`, `kind` (enum, Phase 1 ships only `identify`), `state`
 (`queued`/`running`/`succeeded`/`failed`/`cancelled`), `rq_job_id`, `params` json,
-`idempotency_key` (unique — `sha256(sample_sha256 + kind + canonical(params))`),
+`idempotency_key` (unique — `sha256(case_id + sample_sha256 + kind + canonical(params))`),
 `result_summary` json, `error`, `queued_at`/`started_at`/`finished_at`, `worker`.
+
+> The key is scoped to the case as well as the bytes. That was a correction made during the
+> build: keyed on bytes alone, the same sample arriving in a second case reused the first
+> case's completed job and the second case got no findings at all. Cross-case reuse of
+> *expensive derived output* (a Ghidra decompilation of identical bytes) belongs in the
+> artifacts table keyed by sha256, not in suppressing the job that produces the findings.
 
 ### `findings`
 `id`, `case_id`, `sample_id` (null), `job_id` (null), `producer`, `type`, `title`,
@@ -120,6 +128,8 @@ migrations/env.py + versions/0001_initial.py
 src/necropsy/__init__.py
 src/necropsy/plugin.py                      MODULE descriptor: slug, router, mount(), migration head
 src/necropsy/config.py                      pydantic-settings, NECROPSY_ prefix
+src/necropsy/enums.py                       vocabulary shared by models and schemas
+src/necropsy/runtime.py                     per-process host handle (RQ cannot serialise one)
 
 src/necropsy/contracts/host.py              HostServices Protocol + capability flags
 src/necropsy/contracts/events.py            Event envelope: {type, case_id, at, payload}
@@ -148,7 +158,8 @@ src/necropsy/sinks/base.py                  FindingSink protocol + NullSink defa
 src/necropsy/scoring/rules.py               Phase-1 risk scorer over RiskFactor vocabulary
 src/necropsy/scoring/proposals.py           post-job proposal generation
 
-src/necropsy/jobs/queue.py                  RQ queues triage/heavy/detonate
+src/necropsy/jobs/queue.py                  RQ worker bootstrap
+src/necropsy/jobs/runner.py                 JobRunner: RQ in the lab, inline in CI/on a laptop
 src/necropsy/jobs/registry.py               kind -> callable + params schema
 src/necropsy/jobs/tasks/identify.py         Phase-1 job: deep identify, emit findings + proposals
 src/necropsy/jobs/publish.py                worker-side redis.publish of case events
@@ -158,14 +169,21 @@ src/necropsy/api/routes/cases.py samples.py jobs.py findings.py actions.py
 src/necropsy/api/ws.py                      pub/sub subscriber -> WS fan-out
 src/necropsy/api/deps.py                    session + host services injection
 
-src/necropsy/standalone/app.py              primary app for Phases 1-5, w/ StandaloneHost
+src/necropsy/standalone/app.py              primary app for Phases 1-5
+src/necropsy/standalone/host.py             StandaloneHost: local impl of every HostServices call
 src/necropsy/cli.py                         typer: serve / worker / case new / ingest / reindex
 
-tests/conftest.py                           tmp vault, in-memory-ish sqlite, fake host
-tests/test_vault.py                         round-trip, perms, no-exec-bit, audit on read
-tests/test_intake.py                        dedupe across cases, hash correctness
-tests/test_idempotency.py                   double-enqueue returns one job
-tests/test_api_cases.py                     end-to-end ingest via TestClient
+tests/conftest.py                           tmp vault, tmp sqlite, fake host, synthetic PEs
+tests/test_vault.py                         crypto round-trip, perms, tamper/truncation, audit
+tests/test_intake.py                        dedupe across cases, re-vaulting, refusals
+tests/test_identify.py                      PE/ELF/OOXML/LNK, arch, signature, entropy
+tests/test_jobs.py                          pipeline end to end, findings, proposals, failure
+tests/test_idempotency.py                   double-enqueue, case scoping, param canonicalisation
+tests/test_api.py                           end-to-end through the router the GUI binds to
+tests/test_mount.py                         the sidecar-to-mounted seam stays honest
+tests/test_risk.py                          shared risk vocabulary
+tests/test_migrations.py                    Alembic and the models do not drift
+tests/test_degraded.py                      full pipeline with no native optional deps
 ```
 
 ## 4. API surface (what the GUI panel binds to)
@@ -199,17 +217,68 @@ makes accidental ingest of the wrong file harder.
 - **`Sample.arch`** at intake. It's the input to Phase 3's target-capability matching and
   to the "x86 sample on an ARM64 target" warning. Costs one LIEF call now.
 
-## 6. Acceptance criteria
+## 6. Acceptance criteria — verified
 
-1. `necropsy serve` + `necropsy worker` run standalone with no host app present — which,
-   given the pentest backend is still an early prototype, is the deployment mode for now.
-   The GUI panel points at Necropsy's own port; the mount seam is still exercised by a test.
-2. `necropsy ingest --case <id> ./sample.bin` stores the sample encrypted at 0o400,
-   dedupes on second ingest, and writes audit rows for both.
-3. The same sample added to a second case produces one vault object, two `case_samples`,
-   and a `known_sample_reappearance` finding on the second case.
-4. The identify job emits at least one finding and at least two risk-scored `NextAction`
-   proposals, and the WS stream delivers all of them live.
-5. Accepting a proposal records `decided_by`/`decided_at` and enqueues its job.
-6. `pytest` green with no network and no Redis (fakeredis) — CI must not need the lab.
-7. The GUI panel lists cases and opens a case timeline against the standalone server.
+| # | Criterion | Status |
+|---|---|---|
+| 1 | `necropsy serve` / `necropsy worker` run with no host app present | **met** — server boots, `/health` and the full OpenAPI surface respond; the mount seam is covered by `test_mount.py` rather than left theoretical |
+| 2 | `necropsy ingest` stores encrypted at `0o400`, dedupes, audits both | **met** — `test_vault.py`, `test_intake.py` |
+| 3 | Same sample in a second case → one vault object, two `case_samples`, a reappearance finding | **met** — `test_intake.py::test_same_sample_in_two_cases_is_one_vault_object`, `test_jobs.py::test_second_case_gets_a_reappearance_finding` |
+| 4 | Identify job emits findings and ≥2 risk-scored proposals, streamed live | **met** — a packed x86 PE yields 3 findings and 6 proposals; `test_jobs.py::test_events_reach_subscribers` asserts the event stream |
+| 5 | Accepting a proposal records `decided_by`/`decided_at` and enqueues its job | **met** — `test_api.py`; an accepted proposal also flips to `executed` once its job lands |
+| 6 | `pytest` green with no network and no Redis | **met** — 77 tests, no broker, no lab; `test_degraded.py` additionally runs the whole pipeline with TLSH and libmagic removed |
+| 7 | GUI panel lists cases and opens a timeline | **backend met** — `/cases` and `/cases/{id}/timeline` serve it; the Swift panel is yours to build against the schema |
+
+Sample output from a live run against a synthetic packed x86 PE, which is the shape the
+GUI panel renders:
+
+```
+FINDINGS
+  [medium conf=0.95] arch_mismatch_risk    x86 sample, lab targets are arm64
+  [low    conf=0.9 ] pe_no_signature       PE has no Authenticode signature
+  [medium conf=0.6 ] high_entropy          High entropy (7.85) -- likely packed or encrypted
+
+NEXT ACTIONS (operator decides; nothing runs on its own)
+  risk 10.0 severe    detonate          Detonate in sandbox (egress permitted)   [Phase 3]
+          +1.2 Packed or encrypted contents (high entropy)
+          +0.5 No Authenticode signature
+          +3.0 Live network egress: C2 contact is attributable to your lab
+          +1.5 x86 sample against arm64 target: emulated execution, dormancy is
+               not evidence of benignity
+  risk  7.2 high      detonate          Detonate in sandbox (isolated)           [Phase 3]
+  risk  5.7 moderate  ai_summarise      AI summary of decompiled functions       [Phase 5]
+  risk  2.7 low       static_triage     Static triage (rizin, PE parsing, YARA)  [Phase 2]
+  risk  2.7 low       ghidra_decompile  Full Ghidra decompile pass               [Phase 2]
+  risk  0.3 minimal   hash_pivot        Pivot on hashes across all cases
+```
+
+---
+
+## 7. Where the build departed from this plan
+
+1. **Idempotency is case-scoped.** See the note in §1 — keyed on bytes alone, a second case
+   silently received no analysis.
+2. **`jobs/runner.py` was added.** A `JobRunner` seam (RQ in the lab, inline in CI or on a
+   laptop with no Redis) instead of calling RQ directly. Submission happens *after* the
+   caller commits, because a worker opening its own session cannot see an uncommitted row.
+3. **`runtime.py` was added.** RQ serialises job arguments, so a worker cannot be handed a
+   live `HostServices`; each process establishes its host once and tasks resolve it there.
+4. **Identification moved out of ingest into the job.** Ingest only hashes, vaults, attaches
+   and audits. Everything analytical happens in the identify job, which reads back *out of
+   the vault* — so the vault read path and its audit trail are exercised on every sample
+   rather than first being tried in Phase 3.
+5. **`hash_pivot` was added as a second implemented job kind.** Cross-case exact and TLSH
+   matching. It made criterion 5 testable against real work rather than a stub, and it is
+   genuinely the cheapest useful thing to run after intake.
+6. **Policy is checked before capability.** Accepting `ai_summarise` on a case without
+   disclosure consent returns 403, not "not implemented until Phase 5" — the policy answer
+   will not change when Phase 5 lands, and the other ordering would send an operator away
+   expecting it to work later.
+7. **Vault encryption is chunked AES-GCM, not one-shot.** A 512MB installer must not have to
+   fit in memory. Each chunk is authenticated with its index, and a terminator chunk makes
+   truncation detectable — so XProtect half-eating a vault object is an error, not silent
+   corruption.
+8. **Optional native deps degrade rather than gate.** Architecture and Authenticode presence
+   are parsed by ~150 lines of our own PE/ELF/Mach-O code, because those two answers drive
+   Phase 3 target matching and a real finding. libmagic and LIEF add description on top;
+   TLSH and ssdeep are optional. `necropsy doctor` reports what an install can actually do.

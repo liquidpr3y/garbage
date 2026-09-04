@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "necropsy"
+version = "0.1.0"
+description = "Malware analysis and reverse engineering platform, built as a module of the macOS pentest GUI"
+requires-python = ">=3.11"
+dependencies = [
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "fastapi>=0.110",
+    "pydantic>=2",
+    "pydantic-settings>=2",
+    "uvicorn[standard]>=0.27",
+    "redis>=5",
+    "rq>=1.16",
+    "typer>=0.12",
+    "cryptography>=42",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+# Native/optional analysis deps. Necropsy degrades gracefully without every one of
+# these: see intake/identify.py and intake/hashing.py. Keeping them optional is what
+# lets CI run with no native toolchain.
+analysis = ["py-tlsh>=4.5", "lief>=0.14", "python-magic>=0.4.27"]
+dev = ["pytest>=8", "httpx>=0.27", "fakeredis>=2.21"]
+
+[project.scripts]
+necropsy = "necropsy.cli:app"
+
+# The seam the pentest GUI backend discovers us through. See docs/HOST_INTEGRATION.md.
+[project.entry-points."pentestgui.modules"]
+necropsy = "necropsy.plugin:MODULE"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error::DeprecationWarning:necropsy.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
