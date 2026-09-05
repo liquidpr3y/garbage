@@ -1,0 +1,27 @@
+{
+  "ghidra": false,
+  "libmagic": true,
+  "lief": true,
+  "rizin": false,
+  "rizin_path": null,
+  "tlsh": true,
+  "yara": true,
+  "yara_rule_sources": [
+    {
+      "name": "anti_analysis.yar",
+      "packaged": true
+    },
+    {
+      "name": "embedded.yar",
+      "packaged": true
+    },
+    {
+      "name": "extortion.yar",
+      "packaged": true
+    },
+    {
+      "name": "packers.yar",
+      "packaged": true
+    }
+  ]
+}

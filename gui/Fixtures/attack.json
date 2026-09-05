@@ -1,0 +1,670 @@
+{
+  "attack_version": "19.2",
+  "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+  "detection_gaps": [
+    {
+      "log_sources": [
+        "WinEventLog:Sysmon",
+        "auditd:SYSCALL",
+        "etw:Microsoft-Windows-Kernel-Process",
+        "linux:procfs",
+        "macos:endpointsecurity",
+        "macos:syslog",
+        "macos:unifiedlog"
+      ],
+      "missing_sysmon_codes": [
+        "10"
+      ],
+      "required_sysmon_codes": [
+        "1",
+        "7",
+        "10"
+      ],
+      "technique_id": "T1055",
+      "technique_name": "Process Injection"
+    }
+  ],
+  "inferred_count": 8,
+  "kill_chain": {
+    "actions_on_objectives": [
+      "T1490"
+    ],
+    "command_and_control": [
+      "T1071"
+    ],
+    "exploitation": [
+      "T1055"
+    ],
+    "installation": [
+      "T1027",
+      "T1497",
+      "T1543",
+      "T1547",
+      "T1622"
+    ]
+  },
+  "kill_chain_note": "ATT&CK tactics and the Cyber Kill Chain are different models: ATT&CK describes adversary goals observed post-compromise, the kill chain describes an intrusion's stages. This mapping is a presentation convenience so both views render from one set of findings; it is not a MITRE-published equivalence.",
+  "notes": [
+    "Every technique in this case is inferred from static analysis. Nothing here is evidence the sample did anything -- only that it is equipped to.",
+    "4 finding(s) carry no ATT&CK technique and do not appear on the matrix. The matrix is a view of the case, not the case.",
+    "1 technique(s) in this case need Sysmon events the lab does not collect (10). Absence of behavioural evidence for those is a visibility gap, not a negative result."
+  ],
+  "observed_count": 0,
+  "tactics": [
+    {
+      "id": "TA0003",
+      "max_severity": "high",
+      "name": "Persistence",
+      "shortname": "persistence",
+      "technique_count": 2,
+      "techniques": [
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 1,
+          "finding_ids": [
+            "066eac7f-1721-416b-95b9-cf42d0dfccee"
+          ],
+          "id": "T1543",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Security",
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "docker:events",
+            "fs:fsusage",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.55,
+          "max_severity": "high",
+          "name": "Create or Modify System Process",
+          "parent": null,
+          "platforms": [
+            "Containers",
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "capability"
+          ],
+          "subtechniques": [
+            "T1543.003"
+          ],
+          "sysmon_event_codes": [
+            "1",
+            "13",
+            "14"
+          ],
+          "tactics": [
+            "persistence",
+            "privilege-escalation"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1543"
+        },
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 1,
+          "finding_ids": [
+            "0e0b1ee2-9ef9-4cba-a512-02bb810c4c2f"
+          ],
+          "id": "T1547",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Security",
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.55,
+          "max_severity": "high",
+          "name": "Boot or Logon Autostart Execution",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows",
+            "Network Devices"
+          ],
+          "producers": [
+            "capability"
+          ],
+          "subtechniques": [
+            "T1547.001"
+          ],
+          "sysmon_event_codes": [
+            "13",
+            "14"
+          ],
+          "tactics": [
+            "persistence",
+            "privilege-escalation"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1547"
+        }
+      ]
+    },
+    {
+      "id": "TA0004",
+      "max_severity": "high",
+      "name": "Privilege Escalation",
+      "shortname": "privilege-escalation",
+      "technique_count": 3,
+      "techniques": [
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 2,
+          "finding_ids": [
+            "59b17c18-0664-4fc6-8c9a-bcf8e7cbfd04",
+            "59b17c18-0664-4fc6-8c9a-bcf8e7cbfd04"
+          ],
+          "id": "T1055",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "etw:Microsoft-Windows-Kernel-Process",
+            "linux:procfs",
+            "macos:endpointsecurity",
+            "macos:syslog",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.7,
+          "max_severity": "high",
+          "name": "Process Injection",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "capability"
+          ],
+          "subtechniques": [
+            "T1055.002"
+          ],
+          "sysmon_event_codes": [
+            "1",
+            "7",
+            "10"
+          ],
+          "tactics": [
+            "stealth",
+            "privilege-escalation"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1055"
+        },
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 1,
+          "finding_ids": [
+            "066eac7f-1721-416b-95b9-cf42d0dfccee"
+          ],
+          "id": "T1543",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Security",
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "docker:events",
+            "fs:fsusage",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.55,
+          "max_severity": "high",
+          "name": "Create or Modify System Process",
+          "parent": null,
+          "platforms": [
+            "Containers",
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "capability"
+          ],
+          "subtechniques": [
+            "T1543.003"
+          ],
+          "sysmon_event_codes": [
+            "1",
+            "13",
+            "14"
+          ],
+          "tactics": [
+            "persistence",
+            "privilege-escalation"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1543"
+        },
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 1,
+          "finding_ids": [
+            "0e0b1ee2-9ef9-4cba-a512-02bb810c4c2f"
+          ],
+          "id": "T1547",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Security",
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.55,
+          "max_severity": "high",
+          "name": "Boot or Logon Autostart Execution",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows",
+            "Network Devices"
+          ],
+          "producers": [
+            "capability"
+          ],
+          "subtechniques": [
+            "T1547.001"
+          ],
+          "sysmon_event_codes": [
+            "13",
+            "14"
+          ],
+          "tactics": [
+            "persistence",
+            "privilege-escalation"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1547"
+        }
+      ]
+    },
+    {
+      "id": "TA0005",
+      "max_severity": "high",
+      "name": "Stealth",
+      "shortname": "stealth",
+      "technique_count": 4,
+      "techniques": [
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 2,
+          "finding_ids": [
+            "4de7193b-9411-41f0-8ddc-2c37190dde2e",
+            "76ef179a-621a-4180-8cc7-c25fb98e072b"
+          ],
+          "id": "T1027",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Security",
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "esxi:hostd",
+            "esxi:vmkernel",
+            "linux:cli",
+            "macos:osquery",
+            "macos:unifiedlog",
+            "networkdevice:IDS"
+          ],
+          "max_confidence": 0.85,
+          "max_severity": "high",
+          "name": "Obfuscated Files or Information",
+          "parent": null,
+          "platforms": [
+            "ESXi",
+            "Linux",
+            "macOS",
+            "Network Devices",
+            "Windows"
+          ],
+          "producers": [
+            "capability",
+            "pe"
+          ],
+          "subtechniques": [
+            "T1027.002",
+            "T1027.007"
+          ],
+          "sysmon_event_codes": [
+            "1",
+            "11"
+          ],
+          "tactics": [
+            "stealth"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1027"
+        },
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 3,
+          "finding_ids": [
+            "ab8efe6a-44d1-45c7-9042-fdf3929b4c8d",
+            "2beaf8a5-207b-4681-aee8-0f019b4709d0",
+            "2beaf8a5-207b-4681-aee8-0f019b4709d0"
+          ],
+          "id": "T1497",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.75,
+          "max_severity": "high",
+          "name": "Virtualization/Sandbox Evasion",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "capability",
+            "yara"
+          ],
+          "subtechniques": [
+            "T1497.001"
+          ],
+          "sysmon_event_codes": [
+            "1",
+            "7"
+          ],
+          "tactics": [
+            "stealth",
+            "discovery"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1497"
+        },
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 2,
+          "finding_ids": [
+            "59b17c18-0664-4fc6-8c9a-bcf8e7cbfd04",
+            "59b17c18-0664-4fc6-8c9a-bcf8e7cbfd04"
+          ],
+          "id": "T1055",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "etw:Microsoft-Windows-Kernel-Process",
+            "linux:procfs",
+            "macos:endpointsecurity",
+            "macos:syslog",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.7,
+          "max_severity": "high",
+          "name": "Process Injection",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "capability"
+          ],
+          "subtechniques": [
+            "T1055.002"
+          ],
+          "sysmon_event_codes": [
+            "1",
+            "7",
+            "10"
+          ],
+          "tactics": [
+            "stealth",
+            "privilege-escalation"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1055"
+        },
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 1,
+          "finding_ids": [
+            "10a1c683-f1eb-4760-9ce5-dbec5049e2dd"
+          ],
+          "id": "T1622",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "etw:Microsoft-Windows-Kernel-Process",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.8,
+          "max_severity": "medium",
+          "name": "Debugger Evasion",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "pe"
+          ],
+          "subtechniques": [],
+          "sysmon_event_codes": [
+            "1"
+          ],
+          "tactics": [
+            "stealth",
+            "discovery"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1622"
+        }
+      ]
+    },
+    {
+      "id": "TA0007",
+      "max_severity": "high",
+      "name": "Discovery",
+      "shortname": "discovery",
+      "technique_count": 2,
+      "techniques": [
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 3,
+          "finding_ids": [
+            "ab8efe6a-44d1-45c7-9042-fdf3929b4c8d",
+            "2beaf8a5-207b-4681-aee8-0f019b4709d0",
+            "2beaf8a5-207b-4681-aee8-0f019b4709d0"
+          ],
+          "id": "T1497",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.75,
+          "max_severity": "high",
+          "name": "Virtualization/Sandbox Evasion",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "capability",
+            "yara"
+          ],
+          "subtechniques": [
+            "T1497.001"
+          ],
+          "sysmon_event_codes": [
+            "1",
+            "7"
+          ],
+          "tactics": [
+            "stealth",
+            "discovery"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1497"
+        },
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 1,
+          "finding_ids": [
+            "10a1c683-f1eb-4760-9ce5-dbec5049e2dd"
+          ],
+          "id": "T1622",
+          "is_subtechnique": false,
+          "log_sources": [
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "etw:Microsoft-Windows-Kernel-Process",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.8,
+          "max_severity": "medium",
+          "name": "Debugger Evasion",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows"
+          ],
+          "producers": [
+            "pe"
+          ],
+          "subtechniques": [],
+          "sysmon_event_codes": [
+            "1"
+          ],
+          "tactics": [
+            "stealth",
+            "discovery"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1622"
+        }
+      ]
+    },
+    {
+      "id": "TA0011",
+      "max_severity": "medium",
+      "name": "Command and Control",
+      "shortname": "command-and-control",
+      "technique_count": 1,
+      "techniques": [
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 2,
+          "finding_ids": [
+            "30b48b64-db26-4e71-8bd2-854987c903da",
+            "266ffee6-d480-4d18-b3f9-9a1a684abe8e"
+          ],
+          "id": "T1071",
+          "is_subtechnique": false,
+          "log_sources": [
+            "NSM:Flow",
+            "WinEventLog:Sysmon",
+            "auditd:SYSCALL",
+            "macos:osquery",
+            "macos:unifiedlog"
+          ],
+          "max_confidence": 0.65,
+          "max_severity": "medium",
+          "name": "Application Layer Protocol",
+          "parent": null,
+          "platforms": [
+            "Linux",
+            "macOS",
+            "Windows",
+            "Network Devices",
+            "ESXi"
+          ],
+          "producers": [
+            "capability",
+            "strings"
+          ],
+          "subtechniques": [
+            "T1071.001"
+          ],
+          "sysmon_event_codes": [
+            "3",
+            "22"
+          ],
+          "tactics": [
+            "command-and-control"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1071"
+        }
+      ]
+    },
+    {
+      "id": "TA0040",
+      "max_severity": "critical",
+      "name": "Impact",
+      "shortname": "impact",
+      "technique_count": 1,
+      "techniques": [
+        {
+          "caveat": "Inferred from static analysis: the sample is equipped to do this. Not evidence that it did.",
+          "evidence_grade": "inferred",
+          "finding_count": 2,
+          "finding_ids": [
+            "a880e490-5086-4df2-a9f5-aa6657c901e2",
+            "76b2372a-6907-4d7c-a449-b84374cc583e"
+          ],
+          "id": "T1490",
+          "is_subtechnique": false,
+          "log_sources": [
+            "AWS:CloudTrail",
+            "WinEventLog:Microsoft-Windows-Backup",
+            "WinEventLog:Sysmon",
+            "WinEventLog:System",
+            "auditd:CONFIG_CHANGE",
+            "auditd:SYSCALL",
+            "esxi:hostd",
+            "networkdevice:syslog"
+          ],
+          "max_confidence": 0.9,
+          "max_severity": "critical",
+          "name": "Inhibit System Recovery",
+          "parent": null,
+          "platforms": [
+            "Containers",
+            "ESXi",
+            "IaaS",
+            "Linux",
+            "macOS",
+            "Network Devices",
+            "Windows"
+          ],
+          "producers": [
+            "capability",
+            "yara"
+          ],
+          "subtechniques": [],
+          "sysmon_event_codes": [
+            "1",
+            "13",
+            "14"
+          ],
+          "tactics": [
+            "impact"
+          ],
+          "url": "https://attack.mitre.org/techniques/T1490"
+        }
+      ]
+    }
+  ],
+  "technique_count": 8,
+  "unmapped_finding_count": 4
+}

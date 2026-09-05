@@ -16,6 +16,7 @@ the Cyber Kill Chain and MITRE ATT&CK.
 | [PHASE3.md](docs/PHASE3.md) | Dynamic sandbox: detonation invariants, the readability verdict, telemetry |
 | [PHASE4.md](docs/PHASE4.md) | ATT&CK heatmap, detection gaps, Sigma, and the Elastic findings mirror |
 | [PHASE5.md](docs/PHASE5.md) | The AI layer: prompt-injection defences, validated YARA drafting, cost bounds |
+| [PHASE6.md](docs/PHASE6.md) | The single-pane merge: mount seam, GUI contract, SwiftUI panels |
 | [HOST_INTEGRATION.md](docs/HOST_INTEGRATION.md) | The contract the pentest backend must satisfy |
 | [SAFETY.md](docs/SAFETY.md) | Handling invariants, scope boundary, repo hygiene |
 
@@ -26,7 +27,7 @@ the Cyber Kill Chain and MITRE ATT&CK.
 3. **Dynamic sandbox** — vmrun detonation, host-side PCAP, Sysmon read back from Elastic, behavioural ATT&CK mapping ← **built**
 4. **ATT&CK mapping layer** — bundled ATT&CK v19.2, per-case heatmap with evidence grades, detection-gap analysis, Sigma sweeps, findings mirrored into Elastic ← **built**
 5. **AI layer** — function summaries, case reports, and validated auto-drafted YARA via the Claude API ← **built**
-6. Full merge into the single-pane GUI alongside the pentest tooling
+6. **Single-pane merge** — entry-point mount, module self-description, a diffed GUI contract, and the SwiftUI panels ← **built**
 
 ## Running it
 
@@ -48,6 +49,17 @@ necropsy worker                      # needs Redis; or set NECROPSY_JOB_RUNNER=i
 ```
 
 `pytest` runs the whole suite with no network, no Redis and no lab.
+
+## The GUI panel
+
+```bash
+necropsy contract                                  # check the GUI contract still holds
+python tools/generate_gui_fixtures.py gui/Fixtures # capture real API responses
+cd gui && swift test                               # decode them with the Swift models
+```
+
+`examples/host_app.py` is the ~40 lines the pentest backend needs to mount Necropsy through
+its entry point — no `import necropsy` anywhere in it.
 
 ## Non-negotiables
 

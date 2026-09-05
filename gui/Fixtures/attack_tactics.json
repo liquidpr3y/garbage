@@ -1,0 +1,96 @@
+{
+  "attack_version": "19.2",
+  "kill_chain_note": "ATT&CK tactics and the Cyber Kill Chain are different models: ATT&CK describes adversary goals observed post-compromise, the kill chain describes an intrusion's stages. This mapping is a presentation convenience so both views render from one set of findings; it is not a MITRE-published equivalence.",
+  "tactics": [
+    {
+      "id": "TA0043",
+      "kill_chain_phase": "reconnaissance",
+      "name": "Reconnaissance",
+      "shortname": "reconnaissance"
+    },
+    {
+      "id": "TA0042",
+      "kill_chain_phase": "weaponisation",
+      "name": "Resource Development",
+      "shortname": "resource-development"
+    },
+    {
+      "id": "TA0001",
+      "kill_chain_phase": "delivery",
+      "name": "Initial Access",
+      "shortname": "initial-access"
+    },
+    {
+      "id": "TA0002",
+      "kill_chain_phase": "exploitation",
+      "name": "Execution",
+      "shortname": "execution"
+    },
+    {
+      "id": "TA0003",
+      "kill_chain_phase": "installation",
+      "name": "Persistence",
+      "shortname": "persistence"
+    },
+    {
+      "id": "TA0004",
+      "kill_chain_phase": "exploitation",
+      "name": "Privilege Escalation",
+      "shortname": "privilege-escalation"
+    },
+    {
+      "id": "TA0005",
+      "kill_chain_phase": "installation",
+      "name": "Stealth",
+      "shortname": "stealth"
+    },
+    {
+      "id": "TA0112",
+      "kill_chain_phase": "installation",
+      "name": "Defense Impairment",
+      "shortname": "defense-impairment"
+    },
+    {
+      "id": "TA0006",
+      "kill_chain_phase": "actions_on_objectives",
+      "name": "Credential Access",
+      "shortname": "credential-access"
+    },
+    {
+      "id": "TA0007",
+      "kill_chain_phase": "reconnaissance",
+      "name": "Discovery",
+      "shortname": "discovery"
+    },
+    {
+      "id": "TA0008",
+      "kill_chain_phase": "actions_on_objectives",
+      "name": "Lateral Movement",
+      "shortname": "lateral-movement"
+    },
+    {
+      "id": "TA0009",
+      "kill_chain_phase": "actions_on_objectives",
+      "name": "Collection",
+      "shortname": "collection"
+    },
+    {
+      "id": "TA0011",
+      "kill_chain_phase": "command_and_control",
+      "name": "Command and Control",
+      "shortname": "command-and-control"
+    },
+    {
+      "id": "TA0010",
+      "kill_chain_phase": "actions_on_objectives",
+      "name": "Exfiltration",
+      "shortname": "exfiltration"
+    },
+    {
+      "id": "TA0040",
+      "kill_chain_phase": "actions_on_objectives",
+      "name": "Impact",
+      "shortname": "impact"
+    }
+  ]
+}

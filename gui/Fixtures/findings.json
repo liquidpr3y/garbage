@@ -1,0 +1,438 @@
+[
+  {
+    "attack_technique_ids": [
+      "T1071.001"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.6,
+    "created_at": "2026-09-05T13:34:56.441427Z",
+    "description": "Hardcoded network indicators. Hunt these in the SIEM before detonating: an existing hit changes the case from analysis to incident response.",
+    "evidence": {
+      "ipv4": [
+        "185.220.101.44"
+      ],
+      "url": [
+        "http://185.220.101.44/gate.php"
+      ],
+      "user_agent": [
+        "Mozilla/5.0 (Windows NT 10.0) Loader/2.1"
+      ]
+    },
+    "id": "30b48b64-db26-4e71-8bd2-854987c903da",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "command_and_control",
+    "producer": "strings",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "medium",
+    "title": "3 network indicator(s) in strings",
+    "type": "network_iocs"
+  },
+  {
+    "attack_technique_ids": [
+      "T1490"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.9,
+    "created_at": "2026-09-05T13:34:56.440614Z",
+    "description": "Rule NECROPSY_Recovery_Destruction matched.",
+    "evidence": {
+      "rule": "NECROPSY_Recovery_Destruction",
+      "strings": [
+        {
+          "count": 1,
+          "first_offset": 2353,
+          "identifier": "$a"
+        },
+        {
+          "count": 1,
+          "first_offset": 2362,
+          "identifier": "$b"
+        },
+        {
+          "count": 1,
+          "first_offset": 2377,
+          "identifier": "$f"
+        }
+      ],
+      "tags": []
+    },
+    "id": "a880e490-5086-4df2-a9f5-aa6657c901e2",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "actions_on_objectives",
+    "producer": "yara",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "critical",
+    "title": "YARA: Deletes shadow copies or disables Windows recovery",
+    "type": "yara:NECROPSY_Recovery_Destruction"
+  },
+  {
+    "attack_technique_ids": [
+      "T1497.001"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.75,
+    "created_at": "2026-09-05T13:34:56.439785Z",
+    "description": "Rule NECROPSY_VM_Artefact_Strings matched.",
+    "evidence": {
+      "rule": "NECROPSY_VM_Artefact_Strings",
+      "strings": [
+        {
+          "count": 1,
+          "first_offset": 2394,
+          "identifier": "$a"
+        },
+        {
+          "count": 1,
+          "first_offset": 2406,
+          "identifier": "$b"
+        }
+      ],
+      "tags": []
+    },
+    "id": "ab8efe6a-44d1-45c7-9042-fdf3929b4c8d",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "installation",
+    "producer": "yara",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "high",
+    "title": "YARA: References hypervisor or analysis-tool artefacts",
+    "type": "yara:NECROPSY_VM_Artefact_Strings"
+  },
+  {
+    "attack_technique_ids": [],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 1.0,
+    "created_at": "2026-09-05T13:34:56.438872Z",
+    "description": "Thin static surface (12 imports, 28 strings). Capability coverage is limited; treat absence as unknown, not negative.",
+    "evidence": {
+      "degraded": true,
+      "import_count": 12,
+      "note": "Thin static surface (12 imports, 28 strings). Capability coverage is limited; treat absence as unknown, not negative.",
+      "packed": false,
+      "string_count": 28
+    },
+    "id": "012e4072-ef70-444b-81a1-8606a517222c",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": null,
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "info",
+    "title": "Static capability coverage is degraded",
+    "type": "capability_coverage_degraded"
+  },
+  {
+    "attack_technique_ids": [
+      "T1027.007"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.55,
+    "created_at": "2026-09-05T13:34:56.438037Z",
+    "description": "Looks up functions dynamically instead of importing them. Ordinary in plugin hosts; in a small binary with a thin import table it usually means the real capability is hidden from static import analysis.",
+    "evidence": {
+      "attack": [
+        "T1027.007"
+      ],
+      "capability": "dynamic_api_resolution",
+      "hit_count": 2,
+      "matched_imports": [
+        "GetProcAddress",
+        "LoadLibraryA"
+      ],
+      "matched_strings": []
+    },
+    "id": "4de7193b-9411-41f0-8ddc-2c37190dde2e",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "installation",
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "medium",
+    "title": "Resolves APIs at runtime",
+    "type": "capability:dynamic_api_resolution"
+  },
+  {
+    "attack_technique_ids": [
+      "T1071.001"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.65,
+    "created_at": "2026-09-05T13:34:56.437053Z",
+    "description": "Speaks HTTP(S) outbound -- the most common C2 channel.",
+    "evidence": {
+      "attack": [
+        "T1071.001"
+      ],
+      "capability": "http_c2",
+      "hit_count": 3,
+      "matched_imports": [
+        "HttpSendRequestA",
+        "InternetConnectA",
+        "InternetOpenA"
+      ],
+      "matched_strings": []
+    },
+    "id": "266ffee6-d480-4d18-b3f9-9a1a684abe8e",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "command_and_control",
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "medium",
+    "title": "HTTP client capability",
+    "type": "capability:http_c2"
+  },
+  {
+    "attack_technique_ids": [
+      "T1497",
+      "T1497.001"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.55,
+    "created_at": "2026-09-05T13:34:56.436125Z",
+    "description": "Looks for hypervisor and analysis artefacts. Directly relevant to this lab: a sample that detects emulation and goes dormant is indistinguishable from a benign one in the sandbox timeline.",
+    "evidence": {
+      "attack": [
+        "T1497",
+        "T1497.001"
+      ],
+      "capability": "sandbox_evasion",
+      "hit_count": 2,
+      "matched_imports": [],
+      "matched_strings": [
+        "vboxservice",
+        "vmtoolsd"
+      ]
+    },
+    "id": "2beaf8a5-207b-4681-aee8-0f019b4709d0",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "installation",
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "high",
+    "title": "Virtualisation / sandbox detection",
+    "type": "capability:sandbox_evasion"
+  },
+  {
+    "attack_technique_ids": [
+      "T1543.003"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.55,
+    "created_at": "2026-09-05T13:34:56.434872Z",
+    "description": "Creates or reconfigures a service, giving SYSTEM-level persistence.",
+    "evidence": {
+      "attack": [
+        "T1543.003"
+      ],
+      "capability": "service_persistence",
+      "hit_count": 2,
+      "matched_imports": [
+        "CreateServiceA",
+        "OpenSCManagerA"
+      ],
+      "matched_strings": []
+    },
+    "id": "066eac7f-1721-416b-95b9-cf42d0dfccee",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "installation",
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "high",
+    "title": "Windows service installation",
+    "type": "capability:service_persistence"
+  },
+  {
+    "attack_technique_ids": [
+      "T1547.001"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.55,
+    "created_at": "2026-09-05T13:34:56.433859Z",
+    "description": "Writes to a Run/RunOnce key so the payload survives reboot.",
+    "evidence": {
+      "attack": [
+        "T1547.001"
+      ],
+      "capability": "registry_run_persistence",
+      "hit_count": 2,
+      "matched_imports": [
+        "RegSetValueExA"
+      ],
+      "matched_strings": [
+        "currentversion\\run"
+      ]
+    },
+    "id": "0e0b1ee2-9ef9-4cba-a512-02bb810c4c2f",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "installation",
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "high",
+    "title": "Registry autorun persistence",
+    "type": "capability:registry_run_persistence"
+  },
+  {
+    "attack_technique_ids": [
+      "T1055",
+      "T1055.002"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.7,
+    "created_at": "2026-09-05T13:34:56.433022Z",
+    "description": "Allocates and writes memory in another process and starts execution there. The canonical remote-injection sequence.",
+    "evidence": {
+      "attack": [
+        "T1055",
+        "T1055.002"
+      ],
+      "capability": "process_injection",
+      "hit_count": 4,
+      "matched_imports": [
+        "CreateRemoteThread",
+        "OpenProcess",
+        "VirtualAllocEx",
+        "WriteProcessMemory"
+      ],
+      "matched_strings": []
+    },
+    "id": "59b17c18-0664-4fc6-8c9a-bcf8e7cbfd04",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "exploitation",
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "high",
+    "title": "Process injection primitives",
+    "type": "capability:process_injection"
+  },
+  {
+    "attack_technique_ids": [
+      "T1490"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.7,
+    "created_at": "2026-09-05T13:34:56.432082Z",
+    "description": "Deletes volume shadow copies or disables recovery. Near-diagnostic of ransomware pre-encryption staging.",
+    "evidence": {
+      "attack": [
+        "T1490"
+      ],
+      "capability": "shadow_copy_destruction",
+      "hit_count": 3,
+      "matched_imports": [],
+      "matched_strings": [
+        "delete shadows",
+        "vssadmin",
+        "win32_shadowcopy"
+      ]
+    },
+    "id": "76b2372a-6907-4d7c-a449-b84374cc583e",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "actions_on_objectives",
+    "producer": "capability",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "critical",
+    "title": "Backup and shadow copy destruction",
+    "type": "capability:shadow_copy_destruction"
+  },
+  {
+    "attack_technique_ids": [],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 1.0,
+    "created_at": "2026-09-05T13:34:56.431133Z",
+    "description": "A PDB path leaks the build machine's directory layout, and often a username or project name. Intelligence value rather than a defect: it clusters samples by builder.",
+    "evidence": {
+      "pdb_path": "C:\\dev\\loader\\x64\\Release\\loader.pdb"
+    },
+    "id": "affc7bfa-8697-42ae-88e6-c00567c543a4",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": null,
+    "producer": "pe",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "info",
+    "title": "Build path left in the debug directory",
+    "type": "pe_debug_path"
+  },
+  {
+    "attack_technique_ids": [
+      "T1622"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.8,
+    "created_at": "2026-09-05T13:34:56.430120Z",
+    "description": "TLS callbacks run before the entry point. Commonly used to defeat a debugger that breaks on entry, so set breakpoints accordingly.",
+    "evidence": {
+      "callbacks": [
+        "0x140001010",
+        "0x140001020"
+      ]
+    },
+    "id": "10a1c683-f1eb-4760-9ce5-dbec5049e2dd",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "installation",
+    "producer": "pe",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "medium",
+    "title": "2 TLS callback(s) registered",
+    "type": "pe_tls_callbacks"
+  },
+  {
+    "attack_technique_ids": [
+      "T1027.002"
+    ],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.85,
+    "created_at": "2026-09-05T13:34:56.429081Z",
+    "description": "A section marked both writable and executable is the classic self-modifying unpacking stub. Standard compilers do not emit one.",
+    "evidence": {
+      "sections": [
+        ".packed"
+      ]
+    },
+    "id": "76ef179a-621a-4180-8cc7-c25fb98e072b",
+    "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "kill_chain_phase": "installation",
+    "producer": "pe",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "high",
+    "title": "Writable and executable section: .packed",
+    "type": "pe_writable_executable_section"
+  },
+  {
+    "attack_technique_ids": [],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.95,
+    "created_at": "2026-09-05T13:34:55.562724Z",
+    "description": "This binary cannot run natively on any configured detonation target. Under emulation it may fail outright or silently go dormant, and dormancy is indistinguishable from benignity. Treat any quiet sandbox run of this sample as inconclusive, not clean. Static analysis carries the weight here.",
+    "evidence": {
+      "sample_arch": "x86_64",
+      "target_arches": [
+        "arm64"
+      ]
+    },
+    "id": "c01fa647-37f8-45f0-8403-a13dc53dc9a7",
+    "job_id": "f825aa96-1349-4706-9608-43dfa648047a",
+    "kill_chain_phase": null,
+    "producer": "intake",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "medium",
+    "title": "x86_64 sample, lab targets are arm64",
+    "type": "arch_mismatch_risk"
+  },
+  {
+    "attack_technique_ids": [],
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "confidence": 0.9,
+    "created_at": "2026-09-05T13:34:55.561540Z",
+    "description": "Unsigned is not damning on its own. It matters when the binary presents itself as a vendor product, or when it is found in a location where signed binaries are the norm.",
+    "evidence": {
+      "is_dll": false,
+      "machine": "0x8664"
+    },
+    "id": "505fb9e3-e693-4143-bc68-e023eada0c9e",
+    "job_id": "f825aa96-1349-4706-9608-43dfa648047a",
+    "kill_chain_phase": null,
+    "producer": "pe",
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "severity": "low",
+    "title": "PE has no Authenticode signature",
+    "type": "pe_no_signature"
+  }
+]

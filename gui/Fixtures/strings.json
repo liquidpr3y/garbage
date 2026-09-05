@@ -1,0 +1,56 @@
+{
+  "iocs": {
+    "ipv4": [
+      "185.220.101.44"
+    ],
+    "url": [
+      "http://185.220.101.44/gate.php"
+    ],
+    "user_agent": [
+      "Mozilla/5.0 (Windows NT 10.0) Loader/2.1"
+    ],
+    "windows_path": [
+      "C:\\dev\\loader\\x64\\Release\\loader.pdb"
+    ]
+  },
+  "matched": 28,
+  "strings": [
+    ".text",
+    "`.rdata",
+    "@.data",
+    ".packed",
+    "kernel32.dll",
+    "VirtualAllocEx",
+    "WriteProcessMemory",
+    "CreateRemoteThread",
+    "OpenProcess",
+    "LoadLibraryA",
+    "GetProcAddress",
+    "advapi32.dll",
+    "RegSetValueExA",
+    "OpenSCManagerA",
+    "CreateServiceA",
+    "wininet.dll",
+    "InternetOpenA",
+    "InternetConnectA",
+    "HttpSendRequestA",
+    "RSDS",
+    "C:\\dev\\loader\\x64\\Release\\loader.pdb",
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    "http://185.220.101.44/gate.php",
+    "vssadmin delete shadows",
+    "Win32_ShadowCopy"
+  ],
+  "summary": {
+    "ascii_count": 28,
+    "ioc_counts": {
+      "ipv4": 1,
+      "url": 1,
+      "user_agent": 1,
+      "windows_path": 1
+    },
+    "total_unique": 28,
+    "truncated": false,
+    "utf16_count": 0
+  }
+}

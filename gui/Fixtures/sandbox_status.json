@@ -1,0 +1,15 @@
+{
+  "capabilities": null,
+  "elastic_note": "NECROPSY_ELASTIC_URL is not set; no host telemetry will be collected",
+  "elastic_ready": false,
+  "enabled": false,
+  "known_targets": [
+    "remote",
+    "vmware"
+  ],
+  "pcap_interface": null,
+  "ready": false,
+  "reason": "Dynamic analysis is disabled. Set NECROPSY_SANDBOX_ENABLED=true and configure a target before detonating anything.",
+  "run_seconds": 120,
+  "target": "vmware"
+}

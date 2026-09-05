@@ -1,0 +1,464 @@
+[
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:56.448012Z",
+    "detail": {
+      "kind": "static_triage",
+      "state": "succeeded"
+    },
+    "id": "6c9d29c8-f28c-4f50-9cf0-9d8e9b3fc6f6",
+    "kind": "audit",
+    "title": "job.finished"
+  },
+  {
+    "at": "2026-09-05T13:34:56.446148Z",
+    "available": false,
+    "decided_by": null,
+    "id": "3f22abe9-d76f-4d25-a92d-08472200c3c7",
+    "kind": "action",
+    "risk_band": "moderate",
+    "risk_score": 4.5,
+    "state": "proposed",
+    "title": "AI summary of decompiled functions"
+  },
+  {
+    "at": "2026-09-05T13:34:56.445620Z",
+    "available": false,
+    "decided_by": null,
+    "id": "cef018a6-6616-4089-88d0-ff2b688dd2af",
+    "kind": "action",
+    "risk_band": "severe",
+    "risk_score": 10.0,
+    "state": "proposed",
+    "title": "Detonate in sandbox (egress permitted)"
+  },
+  {
+    "at": "2026-09-05T13:34:56.445100Z",
+    "available": false,
+    "decided_by": null,
+    "id": "3c9539cc-67b4-4238-bcac-da0fa7d62e68",
+    "kind": "action",
+    "risk_band": "moderate",
+    "risk_score": 6.0,
+    "state": "proposed",
+    "title": "Detonate in sandbox (isolated)"
+  },
+  {
+    "at": "2026-09-05T13:34:56.444537Z",
+    "available": true,
+    "decided_by": null,
+    "id": "2971572e-ff19-42aa-bed7-1ca406776327",
+    "kind": "action",
+    "risk_band": "minimal",
+    "risk_score": 0.8,
+    "state": "proposed",
+    "title": "Re-scan with current YARA rules"
+  },
+  {
+    "at": "2026-09-05T13:34:56.443964Z",
+    "available": false,
+    "decided_by": null,
+    "id": "123bcac8-34d9-4167-9763-55f7796ab4cf",
+    "kind": "action",
+    "risk_band": "minimal",
+    "risk_score": 1.5,
+    "state": "proposed",
+    "title": "Full Ghidra decompile pass"
+  },
+  {
+    "at": "2026-09-05T13:34:56.441427Z",
+    "attack_technique_ids": [
+      "T1071.001"
+    ],
+    "confidence": 0.6,
+    "id": "30b48b64-db26-4e71-8bd2-854987c903da",
+    "kill_chain_phase": "command_and_control",
+    "kind": "finding",
+    "producer": "strings",
+    "severity": "medium",
+    "title": "3 network indicator(s) in strings"
+  },
+  {
+    "at": "2026-09-05T13:34:56.440614Z",
+    "attack_technique_ids": [
+      "T1490"
+    ],
+    "confidence": 0.9,
+    "id": "a880e490-5086-4df2-a9f5-aa6657c901e2",
+    "kill_chain_phase": "actions_on_objectives",
+    "kind": "finding",
+    "producer": "yara",
+    "severity": "critical",
+    "title": "YARA: Deletes shadow copies or disables Windows recovery"
+  },
+  {
+    "at": "2026-09-05T13:34:56.439785Z",
+    "attack_technique_ids": [
+      "T1497.001"
+    ],
+    "confidence": 0.75,
+    "id": "ab8efe6a-44d1-45c7-9042-fdf3929b4c8d",
+    "kill_chain_phase": "installation",
+    "kind": "finding",
+    "producer": "yara",
+    "severity": "high",
+    "title": "YARA: References hypervisor or analysis-tool artefacts"
+  },
+  {
+    "at": "2026-09-05T13:34:56.438872Z",
+    "attack_technique_ids": [],
+    "confidence": 1.0,
+    "id": "012e4072-ef70-444b-81a1-8606a517222c",
+    "kill_chain_phase": null,
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "info",
+    "title": "Static capability coverage is degraded"
+  },
+  {
+    "at": "2026-09-05T13:34:56.438037Z",
+    "attack_technique_ids": [
+      "T1027.007"
+    ],
+    "confidence": 0.55,
+    "id": "4de7193b-9411-41f0-8ddc-2c37190dde2e",
+    "kill_chain_phase": "installation",
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "medium",
+    "title": "Resolves APIs at runtime"
+  },
+  {
+    "at": "2026-09-05T13:34:56.437053Z",
+    "attack_technique_ids": [
+      "T1071.001"
+    ],
+    "confidence": 0.65,
+    "id": "266ffee6-d480-4d18-b3f9-9a1a684abe8e",
+    "kill_chain_phase": "command_and_control",
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "medium",
+    "title": "HTTP client capability"
+  },
+  {
+    "at": "2026-09-05T13:34:56.436125Z",
+    "attack_technique_ids": [
+      "T1497",
+      "T1497.001"
+    ],
+    "confidence": 0.55,
+    "id": "2beaf8a5-207b-4681-aee8-0f019b4709d0",
+    "kill_chain_phase": "installation",
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "high",
+    "title": "Virtualisation / sandbox detection"
+  },
+  {
+    "at": "2026-09-05T13:34:56.434872Z",
+    "attack_technique_ids": [
+      "T1543.003"
+    ],
+    "confidence": 0.55,
+    "id": "066eac7f-1721-416b-95b9-cf42d0dfccee",
+    "kill_chain_phase": "installation",
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "high",
+    "title": "Windows service installation"
+  },
+  {
+    "at": "2026-09-05T13:34:56.433859Z",
+    "attack_technique_ids": [
+      "T1547.001"
+    ],
+    "confidence": 0.55,
+    "id": "0e0b1ee2-9ef9-4cba-a512-02bb810c4c2f",
+    "kill_chain_phase": "installation",
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "high",
+    "title": "Registry autorun persistence"
+  },
+  {
+    "at": "2026-09-05T13:34:56.433022Z",
+    "attack_technique_ids": [
+      "T1055",
+      "T1055.002"
+    ],
+    "confidence": 0.7,
+    "id": "59b17c18-0664-4fc6-8c9a-bcf8e7cbfd04",
+    "kill_chain_phase": "exploitation",
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "high",
+    "title": "Process injection primitives"
+  },
+  {
+    "at": "2026-09-05T13:34:56.432082Z",
+    "attack_technique_ids": [
+      "T1490"
+    ],
+    "confidence": 0.7,
+    "id": "76b2372a-6907-4d7c-a449-b84374cc583e",
+    "kill_chain_phase": "actions_on_objectives",
+    "kind": "finding",
+    "producer": "capability",
+    "severity": "critical",
+    "title": "Backup and shadow copy destruction"
+  },
+  {
+    "at": "2026-09-05T13:34:56.431133Z",
+    "attack_technique_ids": [],
+    "confidence": 1.0,
+    "id": "affc7bfa-8697-42ae-88e6-c00567c543a4",
+    "kill_chain_phase": null,
+    "kind": "finding",
+    "producer": "pe",
+    "severity": "info",
+    "title": "Build path left in the debug directory"
+  },
+  {
+    "at": "2026-09-05T13:34:56.430120Z",
+    "attack_technique_ids": [
+      "T1622"
+    ],
+    "confidence": 0.8,
+    "id": "10a1c683-f1eb-4760-9ce5-dbec5049e2dd",
+    "kill_chain_phase": "installation",
+    "kind": "finding",
+    "producer": "pe",
+    "severity": "medium",
+    "title": "2 TLS callback(s) registered"
+  },
+  {
+    "at": "2026-09-05T13:34:56.429081Z",
+    "attack_technique_ids": [
+      "T1027.002"
+    ],
+    "confidence": 0.85,
+    "id": "76ef179a-621a-4180-8cc7-c25fb98e072b",
+    "kill_chain_phase": "installation",
+    "kind": "finding",
+    "producer": "pe",
+    "severity": "high",
+    "title": "Writable and executable section: .packed"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:56.427635Z",
+    "detail": {
+      "actor": "fixture.generator",
+      "sha256": "be019685f51a3531a9adfb4587ef9d1496b38adbc7975ee458e17d009192ca86",
+      "size": 3164,
+      "stored_size": 3222
+    },
+    "id": "011a2792-a578-490b-a2e5-edd0aae552c9",
+    "kind": "audit",
+    "title": "vault.write"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:56.422827Z",
+    "detail": {
+      "actor": "fixture.generator",
+      "sha256": "fd7bdc001199be4c0faefaa9bee9e17c0585c0d03e3d3ff92bfdc26c913dd77d",
+      "size": 893,
+      "stored_size": 951
+    },
+    "id": "d72e97d6-dac3-4000-889d-eec16b17a183",
+    "kind": "audit",
+    "title": "vault.write"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:56.398727Z",
+    "detail": {
+      "actor": "fixture.generator",
+      "reason": "static_triage",
+      "sha256": "a327198360f7ec9588fc42696082eef9a91ce2da517d8dea192d4b2f863eaa36"
+    },
+    "id": "1c321bb2-0d8b-45e6-8a3e-b32248e45243",
+    "kind": "audit",
+    "title": "vault.read"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:56.079271Z",
+    "detail": {
+      "job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+      "kind": "static_triage",
+      "risk_score": 1.5
+    },
+    "id": "4a3d2254-7eaa-4d63-a5ed-169516c3a24f",
+    "kind": "audit",
+    "title": "action.accepted"
+  },
+  {
+    "at": "2026-09-05T13:34:56.078327Z",
+    "error": null,
+    "id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "job_kind": "static_triage",
+    "kind": "job",
+    "state": "succeeded",
+    "title": "static_triage (succeeded)"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:56.054309Z",
+    "detail": {
+      "kind": "identify",
+      "state": "succeeded"
+    },
+    "id": "c308dfd9-e104-4eee-9e42-881e7955ac5b",
+    "kind": "audit",
+    "title": "job.finished"
+  },
+  {
+    "at": "2026-09-05T13:34:56.052086Z",
+    "available": false,
+    "decided_by": null,
+    "id": "c23747ab-5e78-41c8-900b-e3ece5ae5771",
+    "kind": "action",
+    "risk_band": "moderate",
+    "risk_score": 4.5,
+    "state": "expired",
+    "title": "AI summary of decompiled functions"
+  },
+  {
+    "at": "2026-09-05T13:34:56.051485Z",
+    "available": false,
+    "decided_by": null,
+    "id": "b1e2c15b-c3c4-40eb-a544-6fbee5fec772",
+    "kind": "action",
+    "risk_band": "severe",
+    "risk_score": 10.0,
+    "state": "expired",
+    "title": "Detonate in sandbox (egress permitted)"
+  },
+  {
+    "at": "2026-09-05T13:34:56.050733Z",
+    "available": false,
+    "decided_by": null,
+    "id": "ece3c848-325d-464b-8313-8221fb7db1f9",
+    "kind": "action",
+    "risk_band": "moderate",
+    "risk_score": 6.0,
+    "state": "expired",
+    "title": "Detonate in sandbox (isolated)"
+  },
+  {
+    "at": "2026-09-05T13:34:56.049191Z",
+    "available": false,
+    "decided_by": null,
+    "id": "b0bc2527-1967-47d1-8b7c-578cb0918ffd",
+    "kind": "action",
+    "risk_band": "minimal",
+    "risk_score": 1.5,
+    "state": "expired",
+    "title": "Full Ghidra decompile pass"
+  },
+  {
+    "at": "2026-09-05T13:34:56.048574Z",
+    "available": true,
+    "decided_by": "fixture.generator",
+    "id": "8f05ce60-89fe-404a-b09e-58e8e95f53f7",
+    "kind": "action",
+    "risk_band": "minimal",
+    "risk_score": 1.5,
+    "state": "executed",
+    "title": "Static triage (rizin pre-triage, PE parsing, YARA)"
+  },
+  {
+    "at": "2026-09-05T13:34:56.047489Z",
+    "available": true,
+    "decided_by": null,
+    "id": "d4d265c4-5635-49af-8c4a-cb7354ac3b94",
+    "kind": "action",
+    "risk_band": "minimal",
+    "risk_score": 0.3,
+    "state": "proposed",
+    "title": "Pivot on hashes across all cases"
+  },
+  {
+    "at": "2026-09-05T13:34:55.562724Z",
+    "attack_technique_ids": [],
+    "confidence": 0.95,
+    "id": "c01fa647-37f8-45f0-8403-a13dc53dc9a7",
+    "kill_chain_phase": null,
+    "kind": "finding",
+    "producer": "intake",
+    "severity": "medium",
+    "title": "x86_64 sample, lab targets are arm64"
+  },
+  {
+    "at": "2026-09-05T13:34:55.561540Z",
+    "attack_technique_ids": [],
+    "confidence": 0.9,
+    "id": "505fb9e3-e693-4143-bc68-e023eada0c9e",
+    "kill_chain_phase": null,
+    "kind": "finding",
+    "producer": "pe",
+    "severity": "low",
+    "title": "PE has no Authenticode signature"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:55.555224Z",
+    "detail": {
+      "actor": "fixture.generator",
+      "reason": "identify",
+      "sha256": "a327198360f7ec9588fc42696082eef9a91ce2da517d8dea192d4b2f863eaa36"
+    },
+    "id": "aab91463-33d5-42ba-85ac-d9bbb73d64a0",
+    "kind": "audit",
+    "title": "vault.read"
+  },
+  {
+    "at": "2026-09-05T13:34:55.538780Z",
+    "error": null,
+    "id": "f825aa96-1349-4706-9608-43dfa648047a",
+    "job_kind": "identify",
+    "kind": "job",
+    "state": "succeeded",
+    "title": "identify (succeeded)"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:55.535456Z",
+    "detail": {
+      "attached": true,
+      "observed_filename": "loader.exe",
+      "size": 4096,
+      "source": "upload"
+    },
+    "id": "ff468328-b267-41e9-af78-29aba93d3552",
+    "kind": "audit",
+    "title": "sample.ingested"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:55.531511Z",
+    "detail": {
+      "actor": "fixture.generator",
+      "sha256": "a327198360f7ec9588fc42696082eef9a91ce2da517d8dea192d4b2f863eaa36",
+      "size": 4096,
+      "stored_size": 4154
+    },
+    "id": "7926ca3d-8899-403e-868a-7633584add9d",
+    "kind": "audit",
+    "title": "vault.write"
+  },
+  {
+    "actor": "fixture.generator",
+    "at": "2026-09-05T13:34:55.456237Z",
+    "detail": {
+      "ai_disclosure_allowed": false,
+      "name": "Fixture case"
+    },
+    "id": "b43d77ff-73b3-4549-bbf4-d13d2ca2a9a5",
+    "kind": "audit",
+    "title": "case.created"
+  }
+]

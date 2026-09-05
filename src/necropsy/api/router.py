@@ -12,7 +12,7 @@ from fastapi import APIRouter
 
 from necropsy.api import ws
 from necropsy.api.routes import (
-    actions, ai, analysis, attack, cases, findings, jobs, samples, sandbox,
+    actions, ai, analysis, attack, cases, findings, jobs, meta, samples, sandbox,
 )
 
 router = APIRouter()
@@ -25,6 +25,7 @@ router.include_router(analysis.router)
 router.include_router(sandbox.router)
 router.include_router(attack.router)
 router.include_router(ai.router)
+router.include_router(meta.router)
 router.include_router(ws.router)
 
 

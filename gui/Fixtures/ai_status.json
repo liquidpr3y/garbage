@@ -1,0 +1,10 @@
+{
+  "credential_source": null,
+  "credentials": false,
+  "effort": "high",
+  "goodware_configured": false,
+  "goodware_dir": null,
+  "max_functions": 60,
+  "model": "claude-opus-5",
+  "sdk_installed": true
+}

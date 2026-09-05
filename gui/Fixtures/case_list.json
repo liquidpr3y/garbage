@@ -1,0 +1,16 @@
+[
+  {
+    "ai_disclosure_allowed": false,
+    "created_at": "2026-09-05T13:34:55.454819Z",
+    "host_engagement_ref": null,
+    "id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "name": "Fixture case",
+    "severity": "medium",
+    "status": "open",
+    "summary": null,
+    "tags": [
+      "fixture"
+    ],
+    "updated_at": "2026-09-05T13:34:55.454822Z"
+  }
+]

@@ -112,8 +112,16 @@ def test_strip_caseless_rewrites_only_the_suffix() -> None:
 
 @pytest.fixture
 def live_client():  # type: ignore[no-untyped-def]
+    """Skip rather than error when the cluster named by the env var is down.
+
+    Asking for live tests and getting a wall of connection errors tells you
+    less than one clear skip line.
+    """
     client = ElasticClient(LIVE_URL or "", timeout_s=20)
-    client.ping()
+    try:
+        client.ping()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"NECROPSY_TEST_ELASTIC_URL is set but unreachable: {exc}")
     return client
 
 

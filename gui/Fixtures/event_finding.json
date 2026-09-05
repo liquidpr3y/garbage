@@ -1,0 +1,12 @@
+{
+  "type": "finding.created",
+  "case_id": "00000000-0000-0000-0000-000000000001",
+  "at": "2026-09-05T13:34:56.735567Z",
+  "payload": {
+    "job_id": "job-1",
+    "finding_id": "finding-1",
+    "title": "Wrote an autorun registry value",
+    "severity": "high",
+    "type": "behaviour:autorun_persistence"
+  }
+}

@@ -1,0 +1,196 @@
+[
+  {
+    "available": false,
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "created_at": "2026-09-05T13:34:56.445620Z",
+    "decided_at": null,
+    "decided_by": null,
+    "decision_note": null,
+    "estimated_cost_s": 300,
+    "id": "cef018a6-6616-4089-88d0-ff2b688dd2af",
+    "kind": "detonate",
+    "origin_job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "params": {
+      "egress": true
+    },
+    "rationale": "Egress permitted: the sample can reach live C2, which confirms infrastructure but tells the operator your lab exists and attributes it to your IP. Fidelity warning: this is a x86_64 binary and the lab runs arm64. It will execute under emulation, if at all. A quiet run is not evidence that the sample is benign.",
+    "resulting_job_id": null,
+    "risk_band": "severe",
+    "risk_factors": [
+      {
+        "code": "pe_unsigned",
+        "direction": 1,
+        "label": "No Authenticode signature",
+        "weight": 0.5
+      },
+      {
+        "code": "egress_allowed",
+        "direction": 1,
+        "label": "Live network egress: C2 contact is attributable to your lab",
+        "weight": 3.0
+      },
+      {
+        "code": "arch_mismatch",
+        "direction": 1,
+        "label": "x86_64 sample against arm64 target: emulated execution, dormancy is not evidence of benignity",
+        "weight": 1.5
+      }
+    ],
+    "risk_score": 10.0,
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "state": "proposed",
+    "title": "Detonate in sandbox (egress permitted)",
+    "unavailable_reason": "Dynamic analysis is disabled. Set NECROPSY_SANDBOX_ENABLED=true and configure a target before detonating anything."
+  },
+  {
+    "available": false,
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "created_at": "2026-09-05T13:34:56.445100Z",
+    "decided_at": null,
+    "decided_by": null,
+    "decision_note": null,
+    "estimated_cost_s": 300,
+    "id": "3c9539cc-67b4-4238-bcac-da0fa7d62e68",
+    "kind": "detonate",
+    "origin_job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "params": {
+      "egress": false
+    },
+    "rationale": "Host-only networking: no egress, no attribution, no live C2 confirmation. Fidelity warning: this is a x86_64 binary and the lab runs arm64. It will execute under emulation, if at all. A quiet run is not evidence that the sample is benign.",
+    "resulting_job_id": null,
+    "risk_band": "moderate",
+    "risk_factors": [
+      {
+        "code": "pe_unsigned",
+        "direction": 1,
+        "label": "No Authenticode signature",
+        "weight": 0.5
+      },
+      {
+        "code": "network_isolated",
+        "direction": -1,
+        "label": "Host-only network, no egress",
+        "weight": 1.0
+      },
+      {
+        "code": "arch_mismatch",
+        "direction": 1,
+        "label": "x86_64 sample against arm64 target: emulated execution, dormancy is not evidence of benignity",
+        "weight": 1.5
+      }
+    ],
+    "risk_score": 6.0,
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "state": "proposed",
+    "title": "Detonate in sandbox (isolated)",
+    "unavailable_reason": "Dynamic analysis is disabled. Set NECROPSY_SANDBOX_ENABLED=true and configure a target before detonating anything."
+  },
+  {
+    "available": false,
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "created_at": "2026-09-05T13:34:56.446148Z",
+    "decided_at": null,
+    "decided_by": null,
+    "decision_note": null,
+    "estimated_cost_s": 60,
+    "id": "3f22abe9-d76f-4d25-a92d-08472200c3c7",
+    "kind": "ai_summarise",
+    "origin_job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "params": {},
+    "rationale": "Summarise recovered functions via the Claude API. Blocked: this case has ai_disclosure_allowed set to false.",
+    "resulting_job_id": null,
+    "risk_band": "moderate",
+    "risk_factors": [
+      {
+        "code": "pe_unsigned",
+        "direction": 1,
+        "label": "No Authenticode signature",
+        "weight": 0.5
+      },
+      {
+        "code": "third_party_disclosure",
+        "direction": 1,
+        "label": "Sample-derived content leaves the host for a third-party API",
+        "weight": 2.0
+      }
+    ],
+    "risk_score": 4.5,
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "state": "proposed",
+    "title": "AI summary of decompiled functions",
+    "unavailable_reason": "no Anthropic credentials; set ANTHROPIC_API_KEY or run `ant auth login`"
+  },
+  {
+    "available": false,
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "created_at": "2026-09-05T13:34:56.443964Z",
+    "decided_at": null,
+    "decided_by": null,
+    "decision_note": null,
+    "estimated_cost_s": 480,
+    "id": "123bcac8-34d9-4167-9763-55f7796ab4cf",
+    "kind": "ghidra_decompile",
+    "origin_job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "params": {},
+    "rationale": "Static analysis found 7 capabilities, 5 of them high or critical. Coverage was degraded, so that is a limit of visibility rather than a clean bill. A decompile sees through the thin import table and is the right next step.",
+    "resulting_job_id": null,
+    "risk_band": "minimal",
+    "risk_factors": [
+      {
+        "code": "pe_unsigned",
+        "direction": 1,
+        "label": "No Authenticode signature",
+        "weight": 0.5
+      }
+    ],
+    "risk_score": 1.5,
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "state": "proposed",
+    "title": "Full Ghidra decompile pass",
+    "unavailable_reason": "Ghidra not installed; set NECROPSY_GHIDRA_HOME"
+  },
+  {
+    "available": true,
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "created_at": "2026-09-05T13:34:56.444537Z",
+    "decided_at": null,
+    "decided_by": null,
+    "decision_note": null,
+    "estimated_cost_s": 5,
+    "id": "2971572e-ff19-42aa-bed7-1ca406776327",
+    "kind": "yara_scan",
+    "origin_job_id": "53f6e7cd-e8b0-4ac8-8c40-321ac7e288a6",
+    "params": {},
+    "rationale": "2 rule(s) matched on the last pass. Cheap to repeat after adding or editing rules.",
+    "resulting_job_id": null,
+    "risk_band": "minimal",
+    "risk_factors": [],
+    "risk_score": 0.8,
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "state": "proposed",
+    "title": "Re-scan with current YARA rules",
+    "unavailable_reason": null
+  },
+  {
+    "available": true,
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "created_at": "2026-09-05T13:34:56.047489Z",
+    "decided_at": null,
+    "decided_by": null,
+    "decision_note": null,
+    "estimated_cost_s": 2,
+    "id": "d4d265c4-5635-49af-8c4a-cb7354ac3b94",
+    "kind": "hash_pivot",
+    "origin_job_id": "f825aa96-1349-4706-9608-43dfa648047a",
+    "params": {},
+    "rationale": "Look for this exact sample and near neighbours by TLSH in every other case. Cheap, offline, and often reframes a case before any deeper analysis.",
+    "resulting_job_id": null,
+    "risk_band": "minimal",
+    "risk_factors": [],
+    "risk_score": 0.3,
+    "sample_id": "9c10f991-bd90-4018-becf-69e498620eb1",
+    "state": "proposed",
+    "title": "Pivot on hashes across all cases",
+    "unavailable_reason": null
+  }
+]

@@ -1,0 +1,146 @@
+[
+  {
+    "added_at": "2026-09-05T13:34:55.534845Z",
+    "case_id": "bc3ca04d-b514-4397-a754-f31ad32a1041",
+    "id": "9172bef5-38e6-47cc-a6e5-0fa17ad7b34d",
+    "note": null,
+    "observed_filename": "loader.exe",
+    "sample": {
+      "arch": "x86_64",
+      "entropy": 2.6636,
+      "file_type": "pe",
+      "first_seen_at": "2026-09-05T13:34:55.532592Z",
+      "id": "9c10f991-bd90-4018-becf-69e498620eb1",
+      "identity": {
+        "authenticode_signed": false,
+        "certificate_size": 0,
+        "characteristics": "0x22",
+        "dll_characteristics": 33120,
+        "format": "pe",
+        "high_entropy": false,
+        "imphash": "ae34491ce47d567ec246483a30173ca7",
+        "is_dll": false,
+        "machine": "0x8664",
+        "pe32_plus": true,
+        "section_names": [
+          ".text",
+          ".rdata",
+          ".data",
+          ".packed"
+        ],
+        "sections": 4,
+        "static": {
+          "pe": {
+            "entrypoint_rva": 4096,
+            "entrypoint_section": ".text",
+            "error": null,
+            "exports": [],
+            "imphash": "ae34491ce47d567ec246483a30173ca7",
+            "import_count": 12,
+            "imports": {
+              "advapi32.dll": [
+                "RegSetValueExA",
+                "OpenSCManagerA",
+                "CreateServiceA"
+              ],
+              "kernel32.dll": [
+                "VirtualAllocEx",
+                "WriteProcessMemory",
+                "CreateRemoteThread",
+                "OpenProcess",
+                "LoadLibraryA",
+                "GetProcAddress"
+              ],
+              "wininet.dll": [
+                "InternetOpenA",
+                "InternetConnectA",
+                "HttpSendRequestA"
+              ]
+            },
+            "is_dll": false,
+            "overlay_entropy": null,
+            "overlay_size": 0,
+            "parsed_with": "lief",
+            "pdb_path": "C:\\dev\\loader\\x64\\Release\\loader.pdb",
+            "resource_count": 0,
+            "sections": [
+              {
+                "characteristics": [
+                  "CNT_CODE",
+                  "MEM_EXECUTE",
+                  "MEM_READ"
+                ],
+                "entropy": 0.0204,
+                "name": ".text",
+                "raw_size": 512,
+                "virtual_size": 512,
+                "write_execute": false
+              },
+              {
+                "characteristics": [
+                  "CNT_INITIALIZED_DATA",
+                  "MEM_READ"
+                ],
+                "entropy": 4.2332,
+                "name": ".rdata",
+                "raw_size": 1024,
+                "virtual_size": 920,
+                "write_execute": false
+              },
+              {
+                "characteristics": [
+                  "CNT_INITIALIZED_DATA",
+                  "MEM_READ",
+                  "MEM_WRITE"
+                ],
+                "entropy": -0.0,
+                "name": ".data",
+                "raw_size": 512,
+                "virtual_size": 256,
+                "write_execute": false
+              },
+              {
+                "characteristics": [
+                  "CNT_INITIALIZED_DATA",
+                  "MEM_EXECUTE",
+                  "MEM_READ",
+                  "MEM_WRITE"
+                ],
+                "entropy": -0.0,
+                "name": ".packed",
+                "raw_size": 1024,
+                "virtual_size": 1024,
+                "write_execute": true
+              }
+            ],
+            "signature_subjects": [],
+            "signed": false,
+            "tls_callbacks": 2
+          },
+          "rizin": {
+            "available": false,
+            "binary_info": {},
+            "entrypoints": [],
+            "error": "rizin not found on PATH",
+            "function_count": null,
+            "libraries": [],
+            "version": null
+          }
+        },
+        "subsystem": 3,
+        "timestamp": 1610612736
+      },
+      "magic": "PE32+ executable (console) x86-64, for MS Windows, 4 sections",
+      "md5": "a0718206cecadfcba907a6b27bdc40a2",
+      "mime": "application/vnd.microsoft.portable-executable",
+      "sha1": "0ca288888013907af365b7cbcf65b7f7afd34c75",
+      "sha256": "a327198360f7ec9588fc42696082eef9a91ce2da517d8dea192d4b2f863eaa36",
+      "size": 4096,
+      "ssdeep": null,
+      "storage_state": "vaulted",
+      "tlsh": "T16881DC3353B90DF6D0984B3740C319F935A58722037206DF4A43F2056C9DACF987D241"
+    },
+    "source": "upload",
+    "submitted_by": "fixture.generator"
+  }
+]

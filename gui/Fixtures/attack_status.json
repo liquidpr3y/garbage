@@ -1,0 +1,14 @@
+{
+  "attack_version": "19.2",
+  "finding_sink": "null",
+  "sigma_available": true,
+  "sigma_rule_count": 8,
+  "sigma_sources": [
+    "defence.yml",
+    "execution.yml",
+    "impact.yml",
+    "persistence.yml"
+  ],
+  "tactic_count": 15,
+  "technique_count": 697
+}

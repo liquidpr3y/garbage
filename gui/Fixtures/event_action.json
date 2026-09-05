@@ -1,0 +1,13 @@
+{
+  "type": "action.proposed",
+  "case_id": "00000000-0000-0000-0000-000000000001",
+  "at": "2026-09-05T13:34:56.735693Z",
+  "payload": {
+    "action_id": "action-1",
+    "kind": "detonate",
+    "title": "Detonate in sandbox (isolated)",
+    "risk_score": 7.2,
+    "risk_band": "high",
+    "available": false
+  }
+}

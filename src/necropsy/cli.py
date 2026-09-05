@@ -330,6 +330,59 @@ def report(case: str = typer.Option(..., "--case", "-c", help="Case id")) -> Non
 
 
 @app.command()
+def openapi(
+    out: Path | None = typer.Option(None, help="Write the OpenAPI document here"),
+) -> None:
+    """Export the OpenAPI document the GUI panel is generated from."""
+    import json
+
+    from necropsy.standalone.app import create_app
+
+    document = create_app().openapi()
+    text = json.dumps(document, indent=2, sort_keys=True)
+    if out:
+        out.write_text(text + "\n")
+        typer.echo(f"wrote {out} ({len(document.get('paths', {}))} paths)")
+    else:
+        typer.echo(text)
+
+
+@app.command("contract")
+def contract_command(
+    bless: bool = typer.Option(False, help="Rewrite the committed surface with the current one"),
+) -> None:
+    """Check the GUI contract, or re-bless it after an intentional change."""
+    import json
+
+    from necropsy.contract import diff, render, surface_for_module
+
+    committed_path = Path(__file__).resolve().parents[2] / "contract" / "surface.json"
+    current = surface_for_module()
+
+    if bless:
+        committed_path.parent.mkdir(parents=True, exist_ok=True)
+        committed_path.write_text(render(current))
+        typer.echo(f"blessed {len(current['routes'])} routes -> {committed_path}")
+        return
+
+    if not committed_path.exists():
+        typer.secho("no committed contract; run `necropsy contract --bless`",
+                    fg=typer.colors.YELLOW)
+        raise typer.Exit(1)
+
+    problems = diff(current, json.loads(committed_path.read_text()))
+    breaking = [p for p in problems if not p.startswith("added route")]
+    for problem in problems:
+        colour = typer.colors.RED if problem in breaking else typer.colors.YELLOW
+        typer.secho(f"  {problem}", fg=colour)
+    if breaking:
+        typer.secho(f"\n{len(breaking)} breaking change(s) to the GUI contract",
+                    fg=typer.colors.RED)
+        raise typer.Exit(1)
+    typer.secho(f"contract OK ({len(current['routes'])} routes)", fg=typer.colors.GREEN)
+
+
+@app.command()
 def reindex(limit: int = 1000) -> None:
     """Replay findings the finding sink has not confirmed.
 

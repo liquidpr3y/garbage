@@ -1,0 +1,528 @@
+{
+  "routes": {
+    "GET /ai/status": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "credential_source",
+        "credentials",
+        "effort",
+        "goodware_configured",
+        "goodware_dir",
+        "max_functions",
+        "model",
+        "sdk_installed"
+      ]
+    },
+    "GET /analysis/capabilities": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "attack_technique_ids",
+        "description",
+        "id",
+        "indicator_count",
+        "kill_chain_phase",
+        "min_hits",
+        "severity",
+        "title"
+      ]
+    },
+    "GET /analysis/tooling": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "ghidra",
+        "libmagic",
+        "lief",
+        "rizin",
+        "rizin_path",
+        "tlsh",
+        "yara",
+        "yara_rule_sources"
+      ]
+    },
+    "GET /attack/sigma/rules": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /attack/status": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "attack_version",
+        "finding_sink",
+        "sigma_available",
+        "sigma_rule_count",
+        "sigma_sources",
+        "tactic_count",
+        "technique_count"
+      ]
+    },
+    "GET /attack/tactics": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /attack/techniques/{technique_id}": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "id",
+        "is_subtechnique",
+        "kill_chain_phase",
+        "log_sources",
+        "name",
+        "parent",
+        "platforms",
+        "subtechniques",
+        "sysmon_event_codes",
+        "tactics",
+        "url"
+      ]
+    },
+    "GET /cases": {
+      "query_params": [
+        "limit",
+        "offset",
+        "status",
+        "tag"
+      ],
+      "required_headers": [],
+      "response_fields": [
+        "ai_disclosure_allowed",
+        "created_at",
+        "host_engagement_ref",
+        "id",
+        "name",
+        "severity",
+        "status",
+        "summary",
+        "tags",
+        "updated_at"
+      ]
+    },
+    "GET /cases/{case_id}": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "ai_disclosure_allowed",
+        "counts",
+        "created_at",
+        "host_engagement_ref",
+        "id",
+        "name",
+        "severity",
+        "status",
+        "summary",
+        "tags",
+        "updated_at"
+      ]
+    },
+    "GET /cases/{case_id}/actions": {
+      "query_params": [
+        "state"
+      ],
+      "required_headers": [],
+      "response_fields": [
+        "available",
+        "case_id",
+        "created_at",
+        "decided_at",
+        "decided_by",
+        "decision_note",
+        "estimated_cost_s",
+        "id",
+        "kind",
+        "origin_job_id",
+        "params",
+        "rationale",
+        "resulting_job_id",
+        "risk_band",
+        "risk_factors",
+        "risk_score",
+        "sample_id",
+        "state",
+        "title",
+        "unavailable_reason"
+      ]
+    },
+    "GET /cases/{case_id}/attack": {
+      "query_params": [
+        "sysmon_codes"
+      ],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /cases/{case_id}/detonations": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "behaviour_summary",
+        "case_id",
+        "egress",
+        "error",
+        "exec_detail",
+        "fidelity",
+        "fingerprint",
+        "finished_at",
+        "guest_hostname",
+        "guest_path",
+        "id",
+        "job_id",
+        "network_summary",
+        "readable",
+        "reverted",
+        "run_seconds",
+        "sample_id",
+        "snapshot",
+        "started_at",
+        "state",
+        "target",
+        "target_arch",
+        "target_os",
+        "telemetry_events",
+        "telemetry_note",
+        "telemetry_source",
+        "verdict_note"
+      ]
+    },
+    "GET /cases/{case_id}/findings": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "attack_technique_ids",
+        "case_id",
+        "confidence",
+        "created_at",
+        "description",
+        "evidence",
+        "id",
+        "job_id",
+        "kill_chain_phase",
+        "producer",
+        "sample_id",
+        "severity",
+        "title",
+        "type"
+      ]
+    },
+    "GET /cases/{case_id}/jobs": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "case_id",
+        "error",
+        "finished_at",
+        "id",
+        "kind",
+        "params",
+        "queued_at",
+        "result_summary",
+        "sample_id",
+        "started_at",
+        "state",
+        "worker"
+      ]
+    },
+    "GET /cases/{case_id}/report": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /cases/{case_id}/samples": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "added_at",
+        "case_id",
+        "id",
+        "note",
+        "observed_filename",
+        "sample",
+        "source",
+        "submitted_by"
+      ]
+    },
+    "GET /cases/{case_id}/timeline": {
+      "query_params": [
+        "limit"
+      ],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /cases/{case_id}/yara": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /detonations/{detonation_id}": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "behaviour_summary",
+        "case_id",
+        "egress",
+        "error",
+        "exec_detail",
+        "fidelity",
+        "fingerprint",
+        "finished_at",
+        "guest_hostname",
+        "guest_path",
+        "id",
+        "job_id",
+        "network_summary",
+        "readable",
+        "reverted",
+        "run_seconds",
+        "sample_id",
+        "snapshot",
+        "started_at",
+        "state",
+        "target",
+        "target_arch",
+        "target_os",
+        "telemetry_events",
+        "telemetry_note",
+        "telemetry_source",
+        "verdict_note"
+      ]
+    },
+    "GET /detonations/{detonation_id}/timeline": {
+      "query_params": [
+        "limit"
+      ],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /functions/{function_id}": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "address",
+        "ai_summarised_at",
+        "ai_summary",
+        "calling_convention",
+        "calls",
+        "code_sha256",
+        "created_at",
+        "decompile_error",
+        "decompiled",
+        "id",
+        "is_thunk",
+        "job_id",
+        "name",
+        "parameter_count",
+        "sample_id",
+        "size"
+      ]
+    },
+    "GET /health": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /jobs/{job_id}": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "case_id",
+        "error",
+        "finished_at",
+        "id",
+        "kind",
+        "params",
+        "queued_at",
+        "result_summary",
+        "sample_id",
+        "started_at",
+        "state",
+        "worker"
+      ]
+    },
+    "GET /meta/health": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /meta/module": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "migration_head",
+        "panels",
+        "risk_bands",
+        "slug",
+        "title",
+        "version"
+      ]
+    },
+    "GET /samples/{sha256}": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "arch",
+        "entropy",
+        "file_type",
+        "first_seen_at",
+        "id",
+        "identity",
+        "magic",
+        "md5",
+        "mime",
+        "other_cases",
+        "sha1",
+        "sha256",
+        "size",
+        "ssdeep",
+        "storage_state",
+        "tlsh"
+      ]
+    },
+    "GET /samples/{sha256}/function-stats": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /samples/{sha256}/functions": {
+      "query_params": [
+        "include_thunks",
+        "limit",
+        "offset",
+        "q"
+      ],
+      "required_headers": [],
+      "response_fields": [
+        "address",
+        "calls",
+        "has_ai_summary",
+        "has_decompilation",
+        "id",
+        "is_thunk",
+        "name",
+        "parameter_count",
+        "size"
+      ]
+    },
+    "GET /samples/{sha256}/static": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /samples/{sha256}/strings": {
+      "query_params": [
+        "contains",
+        "limit"
+      ],
+      "required_headers": [],
+      "response_fields": []
+    },
+    "GET /sandbox/status": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "capabilities",
+        "elastic_note",
+        "elastic_ready",
+        "enabled",
+        "known_targets",
+        "pcap_interface",
+        "ready",
+        "reason",
+        "run_seconds",
+        "target"
+      ]
+    },
+    "PATCH /cases/{case_id}": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "ai_disclosure_allowed",
+        "created_at",
+        "host_engagement_ref",
+        "id",
+        "name",
+        "severity",
+        "status",
+        "summary",
+        "tags",
+        "updated_at"
+      ]
+    },
+    "POST /actions/{action_id}/accept": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "action",
+        "job_id"
+      ]
+    },
+    "POST /actions/{action_id}/reject": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "available",
+        "case_id",
+        "created_at",
+        "decided_at",
+        "decided_by",
+        "decision_note",
+        "estimated_cost_s",
+        "id",
+        "kind",
+        "origin_job_id",
+        "params",
+        "rationale",
+        "resulting_job_id",
+        "risk_band",
+        "risk_factors",
+        "risk_score",
+        "sample_id",
+        "state",
+        "title",
+        "unavailable_reason"
+      ]
+    },
+    "POST /cases": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "ai_disclosure_allowed",
+        "created_at",
+        "host_engagement_ref",
+        "id",
+        "name",
+        "severity",
+        "status",
+        "summary",
+        "tags",
+        "updated_at"
+      ]
+    },
+    "POST /cases/{case_id}/samples": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "also_in_case_count",
+        "attached_to_case",
+        "identify_job_id",
+        "new_to_platform",
+        "sample"
+      ]
+    },
+    "POST /cases/{case_id}/samples/by-path": {
+      "query_params": [],
+      "required_headers": [],
+      "response_fields": [
+        "also_in_case_count",
+        "attached_to_case",
+        "identify_job_id",
+        "new_to_platform",
+        "sample"
+      ]
+    }
+  },
+  "surface_version": 1
+}

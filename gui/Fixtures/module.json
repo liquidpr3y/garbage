@@ -1,0 +1,75 @@
+{
+  "migration_head": "0001_initial",
+  "panels": [
+    {
+      "description": "Case list and merged timeline of everything that happened.",
+      "disabled_reason": null,
+      "enabled": true,
+      "icon": "folder",
+      "id": "cases",
+      "path": "/cases",
+      "stream": "/ws/cases/{case_id}",
+      "title": "Cases"
+    },
+    {
+      "description": "PE structure, strings and IOCs, capability detection, YARA hits.",
+      "disabled_reason": null,
+      "enabled": true,
+      "icon": "doc.text.magnifyingglass",
+      "id": "sample",
+      "path": "/samples/{sha256}/static",
+      "stream": null,
+      "title": "Sample"
+    },
+    {
+      "description": "Recovered functions and decompiled C, searchable.",
+      "disabled_reason": "Ghidra not installed on this host",
+      "enabled": false,
+      "icon": "chevron.left.forwardslash.chevron.right",
+      "id": "decompile",
+      "path": "/samples/{sha256}/functions",
+      "stream": null,
+      "title": "Decompilation"
+    },
+    {
+      "description": "Detonation timeline, telemetry and the readability verdict.",
+      "disabled_reason": "Dynamic analysis is disabled. Set NECROPSY_SANDBOX_ENABLED=true and configure a target before detonating anything.",
+      "enabled": false,
+      "icon": "play.rectangle",
+      "id": "sandbox",
+      "path": "/cases/{case_id}/detonations",
+      "stream": null,
+      "title": "Sandbox"
+    },
+    {
+      "description": "Technique heatmap, evidence grades and detection gaps.",
+      "disabled_reason": null,
+      "enabled": true,
+      "icon": "square.grid.3x3",
+      "id": "attack",
+      "path": "/cases/{case_id}/attack",
+      "stream": null,
+      "title": "ATT&CK"
+    },
+    {
+      "description": "Model-written case report and drafted detection rules.",
+      "disabled_reason": "no Anthropic credentials on this host",
+      "enabled": false,
+      "icon": "sparkles",
+      "id": "report",
+      "path": "/cases/{case_id}/report",
+      "stream": null,
+      "title": "AI Report"
+    }
+  ],
+  "risk_bands": [
+    "minimal",
+    "low",
+    "moderate",
+    "high",
+    "severe"
+  ],
+  "slug": "necropsy",
+  "title": "Malware Analysis",
+  "version": "0.1.0"
+}
