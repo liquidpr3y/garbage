@@ -33,6 +33,8 @@ QUEUE_FOR_KIND = {
     "ghidra_decompile": QUEUE_HEAVY,
     "sigma_sweep": QUEUE_TRIAGE,
     "ai_summarise": QUEUE_HEAVY,
+    "ai_report": QUEUE_HEAVY,
+    "ai_yara": QUEUE_HEAVY,
     "detonate": QUEUE_DETONATE,
 }
 

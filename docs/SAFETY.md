@@ -54,6 +54,37 @@ These are enforced by `tests/test_sandbox_safety.py`, which fails the build if a
 host-executing target appears, if `revert()` leaves the `finally`, or if the guest
 password becomes loggable.
 
+## The AI layer
+
+Sample-derived content is attacker-controlled, and an LLM reading it is a new
+attack surface that did not exist in Phases 1-4. A sample can carry text written
+to manipulate the model analysing it -- and the more a SOC relies on
+LLM-assisted triage, the more worthwhile that becomes for a malware author.
+
+The invariants:
+
+1. **Sample content is data, never instruction.** It travels inside a
+   nonce-delimited `<untrusted id="...">` envelope; the nonce is random per
+   request so content cannot close its own tag and address the model outside it.
+2. **Every call is schema-constrained.** There is no free-text channel for an
+   injected instruction to steer, and every field is validated before it reaches
+   a case.
+3. **Injection attempts are reported, not just ignored.** Every schema carries
+   `prompt_injection_observed`, and an attempt becomes a finding in its own
+   right -- a sample written for an LLM analyst is intelligence about the author.
+4. **Model output is a draft, never a verdict.** Summaries are labelled
+   AI-generated and confidence-scored. Drafted YARA rules are compiled, matched
+   against the real sample, and tested against a benign corpus; a rule that
+   fails is discarded, not stored.
+5. **When the model disagrees with the pipeline, a human is told.** An AI
+   assessment materially below the worst rule-derived finding raises its own
+   finding. A model talked down by the sample and a model that spotted something
+   real look identical from here.
+6. **The disclosure gate is checked twice** -- at the point of decision in
+   `actions/service.py`, and again in the client before any bytes leave.
+7. **The model is instructed never to produce, repair or improve malicious
+   code**, and never to suggest how a sample could be made more evasive.
+
 ## Repository hygiene
 
 `liquidpr3y/garbage` is currently **public**. Regardless of visibility:

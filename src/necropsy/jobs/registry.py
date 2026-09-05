@@ -14,9 +14,7 @@ from necropsy.enums import JobKind
 
 Handler = Callable[..., dict[str, Any]]
 
-NOT_YET_IMPLEMENTED: dict[JobKind, str] = {
-    JobKind.AI_SUMMARISE: "Phase 5 (Claude API)",
-}
+NOT_YET_IMPLEMENTED: dict[JobKind, str] = {}
 
 
 class JobNotImplemented(RuntimeError):
@@ -57,6 +55,18 @@ def handler_for(kind: JobKind) -> Handler:
         return run
     if kind is JobKind.SIGMA_SWEEP:
         from necropsy.jobs.tasks.sigma_sweep import run
+
+        return run
+    if kind is JobKind.AI_SUMMARISE:
+        from necropsy.jobs.tasks.ai_summarise import run
+
+        return run
+    if kind is JobKind.AI_REPORT:
+        from necropsy.jobs.tasks.ai_report import run
+
+        return run
+    if kind is JobKind.AI_YARA:
+        from necropsy.jobs.tasks.ai_yara import run
 
         return run
     raise KeyError(f"no handler registered for {kind}")

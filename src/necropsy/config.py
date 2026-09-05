@@ -74,6 +74,23 @@ class Settings(BaseSettings):
     sandbox_pcap_interface: str | None = None
     tcpdump_path: str | None = None
 
+    # -- Phase 5: the AI layer ----------------------------------------------
+    # Left unset, the SDK resolves ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN /
+    # an `ant auth login` profile on its own.
+    anthropic_api_key: str | None = None
+    ai_model: str = "claude-opus-5"
+    ai_effort: str = "high"
+    ai_max_tokens: int = 16000
+    # Caps on what one job will send, so a 4,000-function binary cannot turn
+    # into a surprise invoice.
+    ai_max_functions: int = 60
+    ai_function_batch_size: int = 8
+    ai_max_decompiled_chars: int = 6000
+    # Directory of known-good binaries the drafted YARA rules are tested
+    # against. Without one, only the synthetic controls are used.
+    ai_goodware_dir: str | None = None
+    ai_yara_repair_attempts: int = 2
+
     # Extra Sigma rule files or directories, e.g. a SigmaHQ checkout.
     sigma_rule_paths: Annotated[list[str], NoDecode] = Field(default_factory=list)
 

@@ -73,6 +73,8 @@ class JobKind(str, Enum):
     DETONATE = "detonate"
     SIGMA_SWEEP = "sigma_sweep"
     AI_SUMMARISE = "ai_summarise"
+    AI_REPORT = "ai_report"
+    AI_YARA = "ai_yara"
 
 
 class JobState(str, Enum):
@@ -127,4 +129,5 @@ class ArtifactKind(str, Enum):
     GHIDRA_PROJECT = "ghidra_project"
     SCREENSHOT = "screenshot"
     REPORT = "report"
+    YARA_RULE = "yara_rule"
     OTHER = "other"

@@ -27,6 +27,7 @@ dependencies = [
 # these: see intake/identify.py and intake/hashing.py. Keeping them optional is what
 # lets CI run with no native toolchain.
 analysis = ["py-tlsh>=4.5", "lief>=0.14", "python-magic>=0.4.27", "yara-python>=4.3"]
+ai = ["anthropic>=1.0"]
 sigma = ["pysigma>=0.11", "pysigma-backend-elasticsearch>=1.1"]
 dev = ["pytest>=8", "fakeredis>=2.21"]
 

@@ -19,9 +19,7 @@ from necropsy.enums import Arch, FileType, JobKind, Severity
 from necropsy.scoring import rules
 
 # Kinds not yet implemented, and the phase that lands each.
-PLANNED: dict[str, str] = {
-    JobKind.AI_SUMMARISE.value: "Phase 5 (Claude API)",
-}
+PLANNED: dict[str, str] = {}
 
 DETONATABLE_WITHOUT_NATIVE_ARCH = {
     FileType.OFFICE,
@@ -48,6 +46,15 @@ def tooling_note(kind: JobKind) -> str | None:
 
         if not have_yara():
             return "yara-python not installed; pip install necropsy[analysis]"
+    if kind in (JobKind.AI_SUMMARISE, JobKind.AI_REPORT, JobKind.AI_YARA):
+        from necropsy.ai.client import AIClient, have_sdk
+
+        if not have_sdk():
+            return "the anthropic SDK is not installed; pip install necropsy[ai]"
+        if AIClient.try_from_settings() is None:
+            return (
+                "no Anthropic credentials; set ANTHROPIC_API_KEY or run `ant auth login`"
+            )
     if kind is JobKind.SIGMA_SWEEP:
         from necropsy.attack.sigma import have_sigma
         from necropsy.elastic.client import ElasticClient

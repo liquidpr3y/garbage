@@ -140,7 +140,14 @@ def test_accepting_a_proposal_enqueues_and_records_the_decision(
     assert pivot["id"] in {a["id"] for a in executed}
 
 
-def test_accepting_an_unimplemented_proposal_is_refused_clearly(
+def test_every_roadmap_job_kind_is_now_implemented() -> None:
+    """Phases 1-5 are built; unavailability is now only ever about tooling."""
+    from necropsy.jobs.registry import NOT_YET_IMPLEMENTED
+
+    assert NOT_YET_IMPLEMENTED == {}
+
+
+def test_accepting_an_ai_proposal_without_credentials_is_refused_clearly(
     client: TestClient, pe_sample: Path
 ) -> None:
     case = _new_case(client, ai_disclosure_allowed=True)
@@ -154,7 +161,8 @@ def test_accepting_an_unimplemented_proposal_is_refused_clearly(
 
     response = client.post(f"{PREFIX}/actions/{ai['id']}/accept")
     assert response.status_code == 409
-    assert "Phase 5" in response.json()["detail"]
+    detail = response.json()["detail"]
+    assert "credentials" in detail or "anthropic SDK" in detail
 
 
 def test_accepting_a_proposal_the_install_cannot_run_is_refused(

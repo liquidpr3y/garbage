@@ -15,6 +15,7 @@ the Cyber Kill Chain and MITRE ATT&CK.
 | [PHASE2.md](docs/PHASE2.md) | Static triage: capabilities, YARA, Ghidra, and where ATT&CK tagging happens |
 | [PHASE3.md](docs/PHASE3.md) | Dynamic sandbox: detonation invariants, the readability verdict, telemetry |
 | [PHASE4.md](docs/PHASE4.md) | ATT&CK heatmap, detection gaps, Sigma, and the Elastic findings mirror |
+| [PHASE5.md](docs/PHASE5.md) | The AI layer: prompt-injection defences, validated YARA drafting, cost bounds |
 | [HOST_INTEGRATION.md](docs/HOST_INTEGRATION.md) | The contract the pentest backend must satisfy |
 | [SAFETY.md](docs/SAFETY.md) | Handling invariants, scope boundary, repo hygiene |
 
@@ -24,7 +25,7 @@ the Cyber Kill Chain and MITRE ATT&CK.
 2. **Static triage** — PE structure, strings/IOCs, ATT&CK-mapped capabilities, YARA, Ghidra decompilation ← **built**
 3. **Dynamic sandbox** — vmrun detonation, host-side PCAP, Sysmon read back from Elastic, behavioural ATT&CK mapping ← **built**
 4. **ATT&CK mapping layer** — bundled ATT&CK v19.2, per-case heatmap with evidence grades, detection-gap analysis, Sigma sweeps, findings mirrored into Elastic ← **built**
-5. Claude API summarisation + auto-drafted YARA
+5. **AI layer** — function summaries, case reports, and validated auto-drafted YARA via the Claude API ← **built**
 6. Full merge into the single-pane GUI alongside the pentest tooling
 
 ## Running it
@@ -41,6 +42,7 @@ necropsy triage <sha256> --case "$CASE"   # PE, strings, capabilities, YARA
 necropsy actions --case "$CASE"           # risk-scored next steps
 necropsy accept <action-id>               # authorise one (the only route to detonation)
 necropsy attack --case "$CASE"            # ATT&CK matrix + detection gaps
+necropsy report --case "$CASE"            # AI case report, if generated
 necropsy serve                       # http://127.0.0.1:8010/api/v1/necropsy
 necropsy worker                      # needs Redis; or set NECROPSY_JOB_RUNNER=inline
 ```
@@ -53,4 +55,5 @@ necropsy worker                      # needs Redis; or set NECROPSY_JOB_RUNNER=i
 - Nothing detonates without a human accepting a risk-scored proposal — there is deliberately no `necropsy detonate`
 - A quiet run is never reported as a clean one; see the readability verdict in PHASE3.md
 - Absence of evidence is reported as a visibility gap, never as a clean result
+- Sample content is never treated as instruction by the AI layer, and drafted YARA is discarded unless it compiles, matches the sample, and misses a benign corpus
 - No samples, lab topology, or credentials in this repository

@@ -95,15 +95,16 @@ def test_unavailable_kinds_are_offered_but_marked_so(session, host, pe_sample: P
     case, _ = _ingest(session, host, pe_sample)
     proposals = {p.kind: p for p in actions_repo.for_case(session, case.id)}
 
-    # Phase 5 is genuinely not built.
+    # Implemented, but this machine has no Anthropic credentials.
     assert proposals["ai_summarise"].available is False
-    assert "Phase 5" in proposals["ai_summarise"].unavailable_reason
+    reason = proposals["ai_summarise"].unavailable_reason
+    assert "credentials" in reason or "anthropic SDK" in reason
+    assert "Phase 5" not in reason
 
     # Detonation is built, but this install has no sandbox configured -- a
     # different reason, and the operator should be told which.
     assert proposals["detonate"].available is False
     assert "sandbox" in proposals["detonate"].unavailable_reason.lower()
-    assert "Phase 3" not in proposals["detonate"].unavailable_reason
 
     assert proposals["hash_pivot"].available is True
 

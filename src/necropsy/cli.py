@@ -289,6 +289,47 @@ def attack(case: str = typer.Option(..., "--case", "-c", help="Case id")) -> Non
 
 
 @app.command()
+def report(case: str = typer.Option(..., "--case", "-c", help="Case id")) -> None:
+    """Print the AI case report, if one has been generated."""
+    from necropsy.analysis import artifacts as artifact_store
+    from necropsy.db.repos import samples as samples_repo
+    from necropsy.db.session import session_scope
+    from necropsy.enums import ArtifactKind
+    from necropsy.runtime import get_host
+
+    with session_scope() as session:
+        for link in samples_repo.for_case(session, case):
+            artifact = artifact_store.latest(session, link.sample.id, ArtifactKind.REPORT)
+            if artifact is None:
+                continue
+            payload = artifact_store.load_json(
+                session, artifact, actor=get_host().actor(), case_id=case
+            )
+            typer.secho(
+                f"AI-GENERATED REPORT  model={artifact.meta.get('model')}  "
+                f"confidence={payload.get('confidence')}",
+                fg=typer.colors.CYAN, bold=True,
+            )
+            for field_name in (
+                "executive_summary", "technical_narrative", "assessment",
+            ):
+                typer.secho(f"\n{field_name.replace('_', ' ').title()}", bold=True)
+                typer.echo(payload.get(field_name, ""))
+            for field_name in (
+                "recommended_actions", "intelligence_notes", "evidence_gaps",
+            ):
+                items = payload.get(field_name) or []
+                if items:
+                    typer.secho(f"\n{field_name.replace('_', ' ').title()}", bold=True)
+                    for item in items:
+                        typer.echo(f"  - {item}")
+            return
+    typer.secho("no AI report on this case; accept an ai_report proposal first",
+                fg=typer.colors.YELLOW)
+    raise typer.Exit(1)
+
+
+@app.command()
 def reindex(limit: int = 1000) -> None:
     """Replay findings the finding sink has not confirmed.
 
@@ -357,6 +398,8 @@ def doctor() -> None:
     _sandbox_report()
     typer.echo("")
     _attack_report()
+    typer.echo("")
+    _ai_report()
 
     try:
         import redis as redis_lib
@@ -396,6 +439,36 @@ def _attack_report() -> None:
                     fg=typer.colors.YELLOW)
     else:
         typer.secho(f"finding mirror   yes    -> {DATA_STREAM}", fg=typer.colors.GREEN)
+
+
+def _ai_report() -> None:
+    from necropsy.ai.client import DEFAULT_MODEL, credential_source, have_sdk
+
+    settings = get_settings()
+    if not have_sdk():
+        typer.secho("AI               no     (pip install necropsy[ai])", fg=typer.colors.YELLOW)
+        return
+    source = credential_source()
+    if source is None:
+        typer.secho(
+            "AI               no     (no credentials; set ANTHROPIC_API_KEY or "
+            "run `ant auth login`)",
+            fg=typer.colors.YELLOW,
+        )
+        return
+    typer.secho(
+        f"AI               yes    {settings.ai_model or DEFAULT_MODEL} "
+        f"effort={settings.ai_effort} via {source}",
+        fg=typer.colors.GREEN,
+    )
+    if settings.ai_goodware_dir:
+        typer.echo(f"                 YARA drafts tested against {settings.ai_goodware_dir}")
+    else:
+        typer.secho(
+            "                 no goodware corpus: drafted YARA rules get synthetic "
+            "controls only (NECROPSY_AI_GOODWARE_DIR)",
+            fg=typer.colors.YELLOW,
+        )
 
 
 def _sandbox_report() -> None:
