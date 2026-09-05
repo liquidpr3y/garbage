@@ -177,6 +177,79 @@ def triage(
 
 
 @app.command()
+def actions(case: str = typer.Option(..., "--case", "-c", help="Case id")) -> None:
+    """List the proposals awaiting a decision on a case."""
+    from necropsy.db.repos import actions as actions_repo
+    from necropsy.db.session import session_scope
+
+    with session_scope() as session:
+        for action in actions_repo.for_case(session, case):
+            flag = "" if action.available else "  UNAVAILABLE"
+            colour = typer.colors.RED if action.risk_score >= 8 else (
+                typer.colors.YELLOW if action.risk_score >= 4 else typer.colors.GREEN
+            )
+            typer.secho(
+                f"{action.id}  risk {action.risk_score:>4} {action.risk_band:<9} "
+                f"{action.kind:<18} {action.title}{flag}",
+                fg=colour,
+            )
+            if not action.available and action.unavailable_reason:
+                typer.echo(f"      {action.unavailable_reason}")
+
+
+@app.command()
+def accept(
+    action_id: str,
+    note: str | None = typer.Option(None, help="Why you are authorising this"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip the confirmation prompt"),
+) -> None:
+    """Authorise a proposal and run its job.
+
+    Detonation is deliberately reachable only this way, never as its own
+    command: the acceptance record is what shows a named human authorised
+    running live malware, and a direct `necropsy detonate` would bypass it.
+    """
+    from necropsy.actions.service import ActionRefused
+    from necropsy.actions.service import accept as accept_action
+    from necropsy.db.repos import actions as actions_repo, jobs as jobs_repo
+    from necropsy.db.session import session_scope
+    from necropsy.jobs.runner import InlineRunner
+    from necropsy.runtime import get_host
+
+    with session_scope() as session:
+        action = actions_repo.get(session, action_id)
+        if action is None:
+            raise typer.BadParameter(f"no action {action_id}")
+
+        if not yes and action.risk_score >= 4:
+            typer.secho(f"{action.title}", fg=typer.colors.YELLOW, bold=True)
+            typer.echo(f"  risk {action.risk_score} ({action.risk_band})")
+            for factor in action.risk_factors:
+                sign = "+" if factor["direction"] == 1 else "-"
+                typer.echo(f"    {sign}{factor['weight']:<4} {factor['label']}")
+            typer.echo(f"  {action.rationale}")
+            typer.confirm("Authorise?", abort=True)
+
+        try:
+            acceptance = accept_action(session, get_host(), action, note=note)
+        except ActionRefused as exc:
+            typer.secho(str(exc), fg=typer.colors.RED)
+            raise typer.Exit(1) from None
+        job_id, kind = acceptance.job_id, acceptance.kind.value
+
+    InlineRunner().submit(job_id, kind)
+
+    with session_scope() as session:
+        job = jobs_repo.get(session, job_id)
+        typer.echo(f"job {job_id} {job.state.value}")
+        if job.error:
+            typer.secho(job.error.splitlines()[0], fg=typer.colors.RED)
+            raise typer.Exit(1)
+        for key, value in (job.result_summary or {}).items():
+            typer.echo(f"  {key}: {value}")
+
+
+@app.command()
 def reindex(limit: int = 1000) -> None:
     """Replay findings the finding sink has not confirmed.
 
@@ -241,6 +314,9 @@ def doctor() -> None:
     operator = sum(1 for _p, is_packaged in rule_files() if not is_packaged)
     typer.echo(f"\nYARA rule files {packaged} packaged, {operator} operator-supplied")
 
+    typer.echo("")
+    _sandbox_report()
+
     try:
         import redis as redis_lib
 
@@ -250,8 +326,44 @@ def doctor() -> None:
         typer.secho(f"redis           unreachable ({exc}); use NECROPSY_JOB_RUNNER=inline",
                     fg=typer.colors.YELLOW)
 
-    if not settings.elastic_url:
-        typer.echo("elastic         not configured (finding mirror is a no-op until Phase 4)")
+
+def _sandbox_report() -> None:
+    from necropsy.elastic.client import ElasticClient
+    from necropsy.sandbox.targets import NoTargetConfigured, build_target
+
+    settings = get_settings()
+    try:
+        target = build_target()
+        typer.secho(
+            f"sandbox          ready  {target.caps.name} {target.caps.arch.value} "
+            f"snapshot={target.caps.snapshot}",
+            fg=typer.colors.GREEN,
+        )
+        if not target.caps.supports_egress:
+            typer.echo("                 egress runs unavailable (no egress snapshot configured)")
+    except NoTargetConfigured as exc:
+        typer.secho(f"sandbox          no     ({exc})", fg=typer.colors.YELLOW)
+    except Exception as exc:  # noqa: BLE001
+        typer.secho(f"sandbox          error  ({exc})", fg=typer.colors.RED)
+
+    _line(
+        "pcap capture", bool(settings.sandbox_pcap_interface),
+        "set NECROPSY_SANDBOX_PCAP_INTERFACE to a host-only vmnet",
+        settings.sandbox_pcap_interface or "",
+    )
+
+    elastic = ElasticClient.try_from_settings()
+    if elastic is None:
+        typer.secho(
+            "elastic          no     (NECROPSY_ELASTIC_URL unset; detonations will have "
+            "no host telemetry)", fg=typer.colors.YELLOW,
+        )
+    else:
+        try:
+            version = elastic.ping().get("version", {}).get("number", "?")
+            typer.secho(f"elastic          yes    {version}", fg=typer.colors.GREEN)
+        except Exception as exc:  # noqa: BLE001
+            typer.secho(f"elastic          no     (unreachable: {exc})", fg=typer.colors.YELLOW)
 
 
 def _line(label: str, ok: bool, remedy: str, detail: str = "") -> None:

@@ -37,6 +37,8 @@ def settings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Settings:
     monkeypatch.setenv("NECROPSY_OPERATOR", "test.analyst")
     monkeypatch.setenv("NECROPSY_JOB_RUNNER", "inline")
     monkeypatch.setenv("NECROPSY_TARGET_ARCHES", "arm64")
+    # No Elastic Agent to wait for in tests.
+    monkeypatch.setenv("NECROPSY_ELASTIC_SETTLE_SECONDS", "0")
     get_settings.cache_clear()
     yield get_settings()
     get_settings.cache_clear()

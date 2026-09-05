@@ -3,6 +3,7 @@
 from necropsy.db.models.artifact import Artifact
 from necropsy.db.models.audit import AuditAction, AuditEvent
 from necropsy.db.models.case import Case
+from necropsy.db.models.detonation import Detonation
 from necropsy.db.models.finding import Finding
 from necropsy.db.models.function import DecompiledFunction
 from necropsy.db.models.job import AnalysisJob
@@ -17,6 +18,7 @@ __all__ = [
     "Case",
     "CaseSample",
     "DecompiledFunction",
+    "Detonation",
     "Finding",
     "NextAction",
     "Sample",

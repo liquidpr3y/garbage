@@ -20,7 +20,6 @@ from necropsy.scoring import rules
 
 # Kinds not yet implemented, and the phase that lands each.
 PLANNED: dict[str, str] = {
-    JobKind.DETONATE.value: "Phase 3 (VMware Fusion sandbox)",
     JobKind.AI_SUMMARISE.value: "Phase 5 (Claude API)",
 }
 
@@ -32,7 +31,7 @@ DETONATABLE_WITHOUT_NATIVE_ARCH = {
 }
 
 
-def _tooling_note(kind: JobKind) -> str | None:
+def tooling_note(kind: JobKind) -> str | None:
     """Phase 2 jobs depend on external analysers that may not be installed.
 
     An operator should be told "Ghidra is not installed here" rather than being
@@ -49,6 +48,17 @@ def _tooling_note(kind: JobKind) -> str | None:
 
         if not have_yara():
             return "yara-python not installed; pip install necropsy[analysis]"
+    if kind is JobKind.DETONATE:
+        from necropsy.sandbox.targets import NoTargetConfigured, build_target
+
+        try:
+            build_target()
+        except NoTargetConfigured as exc:
+            # Full message on purpose: the actionable half is the setting name,
+            # and truncating to the first sentence throws exactly that away.
+            return str(exc)
+        except Exception:  # noqa: BLE001 - never let a probe break proposal generation
+            return None
     return None
 
 
@@ -62,7 +72,7 @@ def _proposal(
     params: dict | None = None,
 ) -> ActionProposal:
     planned_note = PLANNED.get(kind.value)
-    reason = f"Not implemented until {planned_note}" if planned_note else _tooling_note(kind)
+    reason = f"Not implemented until {planned_note}" if planned_note else tooling_note(kind)
     return ActionProposal(
         kind=kind.value,
         title=title,
@@ -321,4 +331,76 @@ def after_decompile(
     ]
     proposals.append(_detonation_proposal(sample, common, target_arches, egress=False))
     proposals.append(_detonation_proposal(sample, common, target_arches, egress=True))
+    return proposals
+
+
+def after_detonation(
+    sample: Sample,
+    *,
+    target_arches: list[str],
+    readable: bool,
+    behaviours: list[str],
+    egress_used: bool,
+    ai_disclosure_allowed: bool = False,
+) -> list[ActionProposal]:
+    """What to offer after a run.
+
+    The branch that matters is an unreadable run. Re-offering the same isolated
+    detonation would just reproduce the same silence, so the honest options are
+    a decompile (which does not depend on the sample choosing to run) or, where
+    it would change the outcome, a live-network run with its cost stated.
+    """
+    detail = sample.identity or {}
+    common: list = []
+    if detail.get("high_entropy"):
+        common.append(rules.packed())
+
+    proposals: list[ActionProposal] = []
+
+    if not readable:
+        proposals.append(
+            _proposal(
+                JobKind.GHIDRA_DECOMPILE,
+                "Full Ghidra decompile pass",
+                "The detonation produced no readable result, so behaviour cannot settle "
+                "this. Static decompilation does not depend on the sample choosing to "
+                "run, and is the reliable next step.",
+                common,
+                cost_s=480,
+            )
+        )
+        if not egress_used:
+            proposals.append(
+                _detonation_proposal(sample, common, target_arches, egress=True)
+            )
+    else:
+        proposals.append(
+            _proposal(
+                JobKind.GHIDRA_DECOMPILE,
+                "Full Ghidra decompile pass",
+                f"{len(behaviours)} behaviour(s) observed. A decompile explains the "
+                "mechanism behind them and supports writing detection content.",
+                common,
+                cost_s=480,
+            )
+        )
+        if not egress_used:
+            proposals.append(
+                _detonation_proposal(sample, common, target_arches, egress=True)
+            )
+
+    proposals.append(
+        _proposal(
+            JobKind.AI_SUMMARISE,
+            "AI summary and draft YARA rule",
+            "Summarise the combined static and dynamic findings. "
+            + (
+                "This case permits third-party disclosure."
+                if ai_disclosure_allowed
+                else "Blocked: this case has ai_disclosure_allowed set to false."
+            ),
+            [*common, rules.third_party_disclosure()],
+            cost_s=60,
+        )
+    )
     return proposals

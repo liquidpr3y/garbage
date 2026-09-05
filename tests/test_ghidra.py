@@ -69,7 +69,7 @@ def test_proposal_is_marked_unavailable_without_ghidra(monkeypatch: pytest.Monke
     import necropsy.scoring.proposals as proposals_mod
 
     monkeypatch.setattr(ghidra, "have_ghidra", lambda: False)
-    reason = proposals_mod._tooling_note(JobKind.GHIDRA_DECOMPILE)
+    reason = proposals_mod.tooling_note(JobKind.GHIDRA_DECOMPILE)
     assert reason and "NECROPSY_GHIDRA_HOME" in reason
 
 

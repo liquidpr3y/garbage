@@ -40,6 +40,19 @@ could drive.
    attributable, and live C2 contact tells the operator you exist.
 6. **`revert` runs in a `finally`.** A failed detonation must never leave a dirty snapshot
    that the next sample inherits.
+7. **One detonation at a time.** The lab has one set of snapshots, so a filesystem lock
+   holds them for the whole run. Two samples sharing them would cross-contaminate
+   telemetry and a mid-run revert would destroy both.
+8. **A failed run still leaves a record.** The detonation row is committed before the run
+   and its failure committed before the error propagates. A run that pushed a live sample
+   into a guest must be in the record whatever happened next.
+9. **Egress is never silently downgraded.** Asking for a live-network run when no egress
+   snapshot is configured is an error, not an isolated run — an operator who expected C2
+   contact would read the resulting silence as the sample doing nothing.
+
+These are enforced by `tests/test_sandbox_safety.py`, which fails the build if a
+host-executing target appears, if `revert()` leaves the `finally`, or if the guest
+password becomes loggable.
 
 ## Repository hygiene
 

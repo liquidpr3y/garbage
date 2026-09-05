@@ -15,7 +15,6 @@ from necropsy.enums import JobKind
 Handler = Callable[..., dict[str, Any]]
 
 NOT_YET_IMPLEMENTED: dict[JobKind, str] = {
-    JobKind.DETONATE: "Phase 3 (VMware Fusion sandbox)",
     JobKind.AI_SUMMARISE: "Phase 5 (Claude API)",
 }
 
@@ -50,6 +49,10 @@ def handler_for(kind: JobKind) -> Handler:
         return run
     if kind is JobKind.GHIDRA_DECOMPILE:
         from necropsy.jobs.tasks.ghidra_decompile import run
+
+        return run
+    if kind is JobKind.DETONATE:
+        from necropsy.jobs.tasks.detonate import run
 
         return run
     raise KeyError(f"no handler registered for {kind}")

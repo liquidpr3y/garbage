@@ -102,6 +102,7 @@ class Producer(str, Enum):
     GHIDRA = "ghidra"
     SYSMON = "sysmon"
     ZEEK = "zeek"
+    SANDBOX = "sandbox"
     AI = "ai"
     CORRELATION = "correlation"
 
@@ -118,6 +119,7 @@ class ArtifactKind(str, Enum):
     STRINGS = "strings"
     STATIC_REPORT = "static_report"
     DECOMPILATION = "decompilation"
+    TELEMETRY = "telemetry"
     UNPACKED = "unpacked"
     PCAP = "pcap"
     MEMDUMP = "memdump"

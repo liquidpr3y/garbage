@@ -46,7 +46,7 @@ class NextAction(Base):
     # False for kinds a later phase implements. The GUI greys them out rather
     # than hiding them, so the operator sees the whole decision space.
     available: Mapped[bool] = mapped_column(default=True)
-    unavailable_reason: Mapped[str | None] = mapped_column(String(300), default=None)
+    unavailable_reason: Mapped[str | None] = mapped_column(String(600), default=None)
 
     state: Mapped[ActionState] = mapped_column(
         SAEnum(ActionState, native_enum=False), default=ActionState.PROPOSED, index=True

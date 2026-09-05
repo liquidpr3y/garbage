@@ -49,6 +49,39 @@ class Settings(BaseSettings):
     rizin_path: str | None = None
     rizin_timeout_s: int = 120
 
+    # -- Phase 3: dynamic analysis ------------------------------------------
+    # Off by default. Detonation is the one irreversible-ish thing this
+    # platform does, so it takes an explicit opt-in rather than working the
+    # moment a VM path happens to be set.
+    sandbox_enabled: bool = False
+    sandbox_target: str = "vmware"
+    vmrun_path: str | None = None
+    sandbox_vmx_path: Path | None = None
+    sandbox_snapshot_isolated: str | None = None
+    # Egress runs need their own snapshot whose VM is attached to a network
+    # that actually has egress. Without one, an egress request is refused
+    # rather than quietly downgraded -- see targets/vmware.py.
+    sandbox_snapshot_egress: str | None = None
+    sandbox_guest_user: str | None = None
+    sandbox_guest_password: str | None = None
+    sandbox_guest_workdir: str = "C:\\Users\\Public"
+    sandbox_guest_os: str = "windows"
+    sandbox_guest_arch: str = "arm64"
+    sandbox_guest_hostname: str | None = None
+    sandbox_boot_timeout_s: int = 240
+    sandbox_run_seconds: int = 120
+    # Host interface to capture on. A host-only vmnet, never the uplink.
+    sandbox_pcap_interface: str | None = None
+    tcpdump_path: str | None = None
+
+    # Elastic: the lab's existing cluster. Phase 3 reads guest telemetry back
+    # out of it; Phase 4 adds the findings mirror.
+    elastic_verify_certs: bool = True
+    elastic_sysmon_index: str = "logs-windows.sysmon_operational-*"
+    elastic_query_timeout_s: int = 30
+    # Telemetry lands via the Elastic Agent, which is not instantaneous.
+    elastic_settle_seconds: int = 20
+
     # Phase 4. Blank means the finding sink stays a no-op.
     elastic_url: str | None = None
     elastic_api_key: str | None = None
@@ -69,7 +102,7 @@ class Settings(BaseSettings):
             return [p.strip() for p in v.split(",") if p.strip()]
         return v
 
-    @field_validator("ghidra_home", mode="before")
+    @field_validator("ghidra_home", "sandbox_vmx_path", mode="before")
     @classmethod
     def _expand_opt(cls, v: object) -> object:
         if isinstance(v, str) and v.strip():

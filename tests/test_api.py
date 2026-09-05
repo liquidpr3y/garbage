@@ -143,6 +143,24 @@ def test_accepting_a_proposal_enqueues_and_records_the_decision(
 def test_accepting_an_unimplemented_proposal_is_refused_clearly(
     client: TestClient, pe_sample: Path
 ) -> None:
+    case = _new_case(client, ai_disclosure_allowed=True)
+    client.post(
+        f"{PREFIX}/cases/{case['id']}/samples",
+        files={"file": ("invoice.exe", pe_sample.read_bytes())},
+        headers=CONFIRM,
+    )
+    actions = client.get(f"{PREFIX}/cases/{case['id']}/actions").json()
+    ai = next(a for a in actions if a["kind"] == "ai_summarise")
+
+    response = client.post(f"{PREFIX}/actions/{ai['id']}/accept")
+    assert response.status_code == 409
+    assert "Phase 5" in response.json()["detail"]
+
+
+def test_accepting_a_proposal_the_install_cannot_run_is_refused(
+    client: TestClient, pe_sample: Path
+) -> None:
+    """Detonation is implemented; this machine has no sandbox. Say that."""
     case = _new_case(client)
     client.post(
         f"{PREFIX}/cases/{case['id']}/samples",
@@ -154,7 +172,9 @@ def test_accepting_an_unimplemented_proposal_is_refused_clearly(
 
     response = client.post(f"{PREFIX}/actions/{detonate['id']}/accept")
     assert response.status_code == 409
-    assert "Phase 3" in response.json()["detail"]
+    detail = response.json()["detail"].lower()
+    assert "sandbox" in detail
+    assert "phase 3" not in detail
 
 
 def test_ai_summarise_is_blocked_without_case_consent(
