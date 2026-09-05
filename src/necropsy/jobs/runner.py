@@ -31,6 +31,7 @@ QUEUE_FOR_KIND = {
     "static_triage": QUEUE_TRIAGE,
     "yara_scan": QUEUE_TRIAGE,
     "ghidra_decompile": QUEUE_HEAVY,
+    "sigma_sweep": QUEUE_TRIAGE,
     "ai_summarise": QUEUE_HEAVY,
     "detonate": QUEUE_DETONATE,
 }

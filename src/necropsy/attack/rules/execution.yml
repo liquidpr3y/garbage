@@ -1,0 +1,65 @@
+title: Encoded PowerShell Command
+id: 6f1a2b3c-0005-4a10-9e21-11a0b7c5d005
+status: experimental
+description: PowerShell was launched with a base64-encoded command, commonly to hide the payload from casual inspection.
+references:
+    - https://attack.mitre.org/techniques/T1059/001
+author: necropsy
+date: 2026-09-05
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1059.001
+    - attack.t1027
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    powershell:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    encoded:
+        CommandLine|contains:
+            - ' -enc '
+            - ' -EncodedCommand'
+            - ' -e '
+    condition: powershell and encoded
+falsepositives:
+    - Management tooling that legitimately passes encoded commands
+level: high
+---
+title: Office Application Spawning A Command Interpreter
+id: 6f1a2b3c-0006-4a10-9e21-11a0b7c5d006
+status: experimental
+description: A document handler spawned a shell or script host, the classic macro execution chain.
+references:
+    - https://attack.mitre.org/techniques/T1566/001
+author: necropsy
+date: 2026-09-05
+tags:
+    - attack.execution
+    - attack.initial_access
+    - attack.t1204.002
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    parent:
+        ParentImage|endswith:
+            - '\winword.exe'
+            - '\excel.exe'
+            - '\powerpnt.exe'
+            - '\outlook.exe'
+    child:
+        Image|endswith:
+            - '\cmd.exe'
+            - '\powershell.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+            - '\mshta.exe'
+            - '\rundll32.exe'
+    condition: parent and child
+falsepositives:
+    - Document automation and some enterprise add-ins
+level: high

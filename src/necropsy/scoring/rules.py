@@ -19,6 +19,7 @@ BASE_RISK: dict[str, float] = {
     JobKind.STATIC_TRIAGE.value: 1.0,
     JobKind.YARA_SCAN.value: 0.8,
     JobKind.GHIDRA_DECOMPILE.value: 1.0,
+    JobKind.SIGMA_SWEEP.value: 0.3,
     JobKind.AI_SUMMARISE.value: 2.0,
     JobKind.DETONATE.value: 5.0,
 }

@@ -48,6 +48,14 @@ def tooling_note(kind: JobKind) -> str | None:
 
         if not have_yara():
             return "yara-python not installed; pip install necropsy[analysis]"
+    if kind is JobKind.SIGMA_SWEEP:
+        from necropsy.attack.sigma import have_sigma
+        from necropsy.elastic.client import ElasticClient
+
+        if not have_sigma():
+            return "pySigma not installed; pip install necropsy[sigma]"
+        if ElasticClient.try_from_settings() is None:
+            return "NECROPSY_ELASTIC_URL is not set; there is no telemetry to sweep"
     if kind is JobKind.DETONATE:
         from necropsy.sandbox.targets import NoTargetConfigured, build_target
 

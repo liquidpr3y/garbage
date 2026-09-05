@@ -1,0 +1,53 @@
+title: Security Product Exclusion Added
+id: 6f1a2b3c-0007-4a10-9e21-11a0b7c5d007
+status: experimental
+description: A Defender exclusion or preference change was made, carving out a blind spot.
+references:
+    - https://attack.mitre.org/techniques/T1685
+author: necropsy
+date: 2026-09-05
+tags:
+    - attack.defense_impairment
+    - attack.t1685
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        CommandLine|contains:
+            - 'Add-MpPreference'
+            - 'Set-MpPreference'
+            - '-ExclusionPath'
+            - '-ExclusionExtension'
+            - '-DisableRealtimeMonitoring'
+    condition: selection
+falsepositives:
+    - Deployment tooling configuring legitimate exclusions
+level: critical
+---
+title: Windows Event Log Cleared Via Command Line
+id: 6f1a2b3c-0008-4a10-9e21-11a0b7c5d008
+status: experimental
+description: Event logs were cleared, destroying the record of what happened.
+references:
+    - https://attack.mitre.org/techniques/T1070/001
+author: necropsy
+date: 2026-09-05
+tags:
+    - attack.stealth
+    - attack.t1070.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    wevtutil:
+        Image|endswith: '\wevtutil.exe'
+        CommandLine|contains:
+            - ' cl '
+            - ' clear-log'
+    powershell:
+        CommandLine|contains: 'Clear-EventLog'
+    condition: 1 of them
+falsepositives:
+    - Very rare outside deliberate log rotation
+level: critical

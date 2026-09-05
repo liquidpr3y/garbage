@@ -157,6 +157,7 @@ def run(session: Session, host: HostServices, job: AnalysisJob) -> dict[str, Any
         )
 
     _emit_findings(session, host, job, detonation, report, network)
+    sigma_summary = _run_sigma(session, host, job, detonation, started, finished)
 
     case = cases_repo.get(session, job.case_id)
     proposals = after_detonation(
@@ -182,8 +183,49 @@ def run(session: Session, host: HostServices, job: AnalysisJob) -> dict[str, Any
         "behaviours": [b.id for b in report.behaviours],
         "attack_techniques": sorted({t for b in report.behaviours for t in b.attack}),
         "network": detonation.network_summary,
+        "sigma": sigma_summary,
         "reverted": detonation.reverted,
     }
+
+
+def _run_sigma(
+    session: Session,
+    host: HostServices,
+    job: AnalysisJob,
+    detonation: Detonation,
+    started: datetime,
+    finished: datetime,
+) -> dict[str, Any]:
+    """Sweep the run's telemetry with Sigma, right after collecting it.
+
+    Sigma covers behaviour the hand-written rules in `sandbox/behaviour.py` do
+    not, and carries its own ATT&CK tags -- so this is where the community
+    corpus earns its place rather than us growing that table by hand.
+    """
+    from necropsy.attack import sigma as sigma_mod
+    from necropsy.jobs.tasks.sigma_sweep import emit_sigma_findings
+
+    settings = get_settings()
+    client = ElasticClient.try_from_settings()
+    if client is None or not sigma_mod.have_sigma():
+        return {"available": False, "reason": "Elastic or pySigma unavailable"}
+
+    window = TelemetryWindow(
+        start=started - timedelta(seconds=30),
+        end=finished + timedelta(seconds=settings.elastic_settle_seconds + 30),
+        host=detonation.guest_hostname,
+    )
+    try:
+        result = sigma_mod.run(
+            client, settings.elastic_sysmon_index, window,
+            events_in_window=detonation.telemetry_events,
+        )
+    except Exception as exc:  # noqa: BLE001 - a rule sweep must not fail the run
+        log.warning("sigma sweep failed: %s", exc)
+        return {"available": False, "reason": str(exc)}
+
+    emit_sigma_findings(session, host, job, result, detonation)
+    return result.summary()
 
 
 class _NullCapture:

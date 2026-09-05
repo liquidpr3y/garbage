@@ -226,7 +226,7 @@ def analyse(
             id="defence_tampering", title="Tampered with security controls",
             description="Firewall, AV or event logging was modified.",
             severity=Severity.CRITICAL, kill_chain_phase=KCP.INSTALLATION,
-            attack=["T1562.001"], confidence=0.9, evidence={"command_lines": tampering[:5]},
+            attack=["T1685"], confidence=0.9, evidence={"command_lines": tampering[:5]},
         ))
     if report.contacted_ips or report.dns_queries:
         _add(Behaviour(

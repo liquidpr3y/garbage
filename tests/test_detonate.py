@@ -263,3 +263,93 @@ def test_telemetry_note_is_recorded_even_with_no_events(
     assert "other hosts" in row.telemetry_note
     assert row.readable is False
     assert job.result_summary["telemetry_note"] == row.telemetry_note
+
+
+# -- Sigma integration -------------------------------------------------------
+
+
+def test_detonation_reports_sigma_as_unavailable_without_elastic(
+    session, host, target, telemetry, loader_sample: Path
+) -> None:
+    """No cluster means no sweep -- said plainly, not silently skipped."""
+    _case, _sample, job = _detonate(session, host, loader_sample)
+    assert job.result_summary["sigma"]["available"] is False
+
+
+def test_sigma_sweep_without_a_detonation_fails_clearly(
+    session, host, loader_sample: Path
+) -> None:
+    from necropsy.cases import service as case_service
+
+    case = case_service.create_case(session, host, name="No run")
+    session.commit()
+    ingested = intake.ingest_file(session, host, case_id=case.id, src=loader_sample)
+    session.commit()
+    execute_job(ingested.job_id)
+
+    job, _ = jobs_repo.enqueue_or_get(
+        session, case_id=case.id, kind=JobKind.SIGMA_SWEEP,
+        sample_id=ingested.sample.id, sample_sha256=ingested.sample.sha256,
+    )
+    session.commit()
+    execute_job(job.id)
+    session.expire_all()
+
+    done = jobs_repo.get(session, job.id)
+    assert done.state is JobState.FAILED
+    assert "no detonation" in done.error
+
+
+def test_sigma_sweep_finds_the_latest_detonation(
+    session, host, target, telemetry, loader_sample: Path
+) -> None:
+    from necropsy.jobs.tasks.sigma_sweep import latest_detonation
+
+    case, sample, _job = _detonate(session, host, loader_sample)
+    found = latest_detonation(session, case.id, sample.id)
+    assert found is not None and found.state == "completed"
+
+
+def test_sigma_findings_are_emitted_from_a_sweep_result(session, host, target, telemetry,
+                                                        loader_sample: Path) -> None:
+    """Rule hits become technique-tagged findings without a mapping table."""
+    from necropsy.attack.sigma import CompiledRule, SigmaHit, SigmaRunResult
+    from necropsy.db.repos import findings as findings_repo
+    from necropsy.jobs.tasks.sigma_sweep import emit_sigma_findings
+
+    case, _sample, job = _detonate(session, host, loader_sample)
+    rule = CompiledRule(
+        id="rule-1", title="Shadow Copy Deletion", description="backups destroyed",
+        level="critical", status="stable", source="impact.yml", query="q",
+        attack_techniques=["T1490"],
+    )
+    result = SigmaRunResult(hits=[SigmaHit(rule=rule, count=3)], rules_run=8)
+    emit_sigma_findings(session, host, jobs_repo.get(session, job.id), result, None)
+    session.flush()
+
+    finding = next(
+        f for f in findings_repo.for_case(session, case.id) if f.type == "sigma:rule-1"
+    )
+    assert finding.severity.value == "critical"
+    assert finding.attack_technique_ids == ["T1490"]
+    assert finding.kill_chain_phase.value == "actions_on_objectives"
+    assert finding.evidence["match_count"] == 3
+
+
+def test_an_inconclusive_sweep_emits_a_finding_saying_so(
+    session, host, target, telemetry, loader_sample: Path
+) -> None:
+    from necropsy.attack.sigma import SigmaRunResult
+    from necropsy.db.repos import findings as findings_repo
+    from necropsy.jobs.tasks.sigma_sweep import emit_sigma_findings
+
+    case, _sample, job = _detonate(session, host, loader_sample)
+    result = SigmaRunResult(
+        hits=[], rules_run=8, inconclusive=True,
+        note="No rules matched, but the window contains 40 event(s).",
+    )
+    emit_sigma_findings(session, host, jobs_repo.get(session, job.id), result, None)
+    session.flush()
+
+    types = {f.type for f in findings_repo.for_case(session, case.id)}
+    assert "sigma_sweep_inconclusive" in types

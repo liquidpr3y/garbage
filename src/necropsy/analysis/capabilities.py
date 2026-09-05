@@ -253,7 +253,7 @@ CATALOGUE: tuple[Capability, ...] = (
         description="Attempts to disable AV/EDR, the firewall, or event logging.",
         severity=Severity.CRITICAL,
         kill_chain_phase=KCP.INSTALLATION,
-        attack=("T1562.001", "T1562.004"),
+        attack=("T1685", "T1686"),
         strings=("netsh advfirewall set", "set-mppreference", "add-mppreference",
                  "-exclusionpath", "windefend", "wevtutil cl", "stop-service",
                  "taskkill /f /im", "sc stop"),

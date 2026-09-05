@@ -250,6 +250,45 @@ def accept(
 
 
 @app.command()
+def attack(case: str = typer.Option(..., "--case", "-c", help="Case id")) -> None:
+    """Print the case's ATT&CK coverage as a matrix."""
+    from necropsy.attack import coverage as coverage_mod
+    from necropsy.db.session import session_scope
+
+    with session_scope() as session:
+        report = coverage_mod.build(session, case)
+
+    typer.echo(
+        f"ATT&CK v{report.attack_version}  {report.technique_count} technique(s)  "
+        f"{report.observed_count} observed / {report.inferred_count} inferred"
+    )
+    for tactic in report.tactics:
+        typer.secho(f"\n{tactic.name}", bold=True)
+        for cell in tactic.cells:
+            grade = {"observed": "OBSERVED", "observed_emulated": "observed*",
+                     "inferred": "inferred"}[cell.evidence_grade]
+            colour = (
+                typer.colors.RED if cell.max_severity.value in ("critical", "high")
+                else typer.colors.YELLOW if cell.max_severity.value == "medium"
+                else typer.colors.WHITE
+            )
+            typer.secho(
+                f"  {cell.technique.id:<11} {cell.technique.name[:40]:<42} "
+                f"{cell.max_severity.value:<9} {grade}",
+                fg=colour,
+            )
+    if report.detection_gaps:
+        typer.secho("\nDetection gaps (Sysmon events this lab does not collect)", bold=True)
+        for gap in report.detection_gaps[:15]:
+            typer.echo(
+                f"  {gap.technique_id:<11} {gap.technique_name[:38]:<40} "
+                f"missing {','.join(gap.missing_sysmon_codes)}"
+            )
+    for note in report.notes:
+        typer.secho(f"\n! {note}", fg=typer.colors.YELLOW)
+
+
+@app.command()
 def reindex(limit: int = 1000) -> None:
     """Replay findings the finding sink has not confirmed.
 
@@ -316,6 +355,8 @@ def doctor() -> None:
 
     typer.echo("")
     _sandbox_report()
+    typer.echo("")
+    _attack_report()
 
     try:
         import redis as redis_lib
@@ -325,6 +366,36 @@ def doctor() -> None:
     except Exception as exc:  # noqa: BLE001
         typer.secho(f"redis           unreachable ({exc}); use NECROPSY_JOB_RUNNER=inline",
                     fg=typer.colors.YELLOW)
+
+
+def _attack_report() -> None:
+    from necropsy.attack.catalogue import get_catalogue
+    from necropsy.attack.sigma import compile_rules, have_sigma
+    from necropsy.sinks.elastic import DATA_STREAM, ElasticFindingSink
+
+    catalogue = get_catalogue()
+    typer.secho(
+        f"ATT&CK           yes    v{catalogue.attack_version}, {len(catalogue)} techniques",
+        fg=typer.colors.GREEN,
+    )
+    if have_sigma():
+        rules, sources = compile_rules()
+        broken = [s for s in sources if s.error]
+        typer.secho(
+            f"Sigma            yes    {len(rules)} rules from {len(sources)} file(s)",
+            fg=typer.colors.GREEN,
+        )
+        for source in broken:
+            typer.secho(f"                 {source.name}: {source.error}", fg=typer.colors.RED)
+    else:
+        typer.secho("Sigma            no     (pip install necropsy[sigma])",
+                    fg=typer.colors.YELLOW)
+
+    if ElasticFindingSink.try_from_settings() is None:
+        typer.secho("finding mirror   no     (NECROPSY_ELASTIC_URL unset)",
+                    fg=typer.colors.YELLOW)
+    else:
+        typer.secho(f"finding mirror   yes    -> {DATA_STREAM}", fg=typer.colors.GREEN)
 
 
 def _sandbox_report() -> None:

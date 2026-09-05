@@ -74,9 +74,32 @@ def to_ecs(finding: Finding) -> dict[str, Any]:
     if finding.description:
         doc["necropsy"]["description"] = finding.description
     if finding.attack_technique_ids:
-        doc.setdefault("threat", {})["technique"] = {"id": finding.attack_technique_ids}
+        # ECS threat.* is ATT&CK's namespace, so tactic here must be an ATT&CK
+        # tactic resolved from the technique -- not our kill chain phase. Putting
+        # the kill chain in threat.tactic.name would look right and quietly break
+        # every Kibana ATT&CK view that reads it.
+        from necropsy.attack.catalogue import get_catalogue
+
+        catalogue = get_catalogue()
+        names, ids, tactic_names, tactic_ids = [], [], [], []
+        for raw in finding.attack_technique_ids:
+            technique = catalogue.resolve(raw)
+            ids.append(technique.id)
+            names.append(technique.name)
+            for tactic in technique.tactics:
+                tactic_names.append(catalogue.tactic_name(tactic))
+                tactic_id = catalogue.tactic_id(tactic)
+                if tactic_id:
+                    tactic_ids.append(tactic_id)
+
+        threat = doc.setdefault("threat", {})
+        threat["framework"] = "MITRE ATT&CK"
+        threat["technique"] = {"id": sorted(set(ids)), "name": sorted(set(names))}
+        if tactic_names:
+            threat["tactic"] = {"name": sorted(set(tactic_names)), "id": sorted(set(tactic_ids))}
+
     if finding.kill_chain_phase:
-        doc.setdefault("threat", {})["tactic"] = {"name": finding.kill_chain_phase.value}
+        doc["necropsy"]["kill_chain_phase"] = finding.kill_chain_phase.value
     if finding.evidence:
         doc["necropsy"]["evidence"] = finding.evidence
     return doc

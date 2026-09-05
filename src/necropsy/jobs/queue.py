@@ -25,9 +25,13 @@ def run_worker(queues: list[str] | None = None, *, burst: bool = False) -> None:
     from necropsy.db.session import get_engine
     from necropsy.runtime import get_host
 
-    # Establish the process's engine and host before the first job arrives.
+    # Establish the process's engine, host and finding sink before the first
+    # job arrives -- a worker that skipped the sink would mirror nothing.
+    from necropsy.sinks import install_if_configured
+
     get_engine()
     get_host()
+    install_if_configured()
 
     worker = Worker(queues or ALL_QUEUES, connection=connection())
     worker.work(burst=burst)

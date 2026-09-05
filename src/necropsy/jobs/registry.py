@@ -55,6 +55,10 @@ def handler_for(kind: JobKind) -> Handler:
         from necropsy.jobs.tasks.detonate import run
 
         return run
+    if kind is JobKind.SIGMA_SWEEP:
+        from necropsy.jobs.tasks.sigma_sweep import run
+
+        return run
     raise KeyError(f"no handler registered for {kind}")
 
 

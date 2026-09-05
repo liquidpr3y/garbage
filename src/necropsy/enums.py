@@ -71,6 +71,7 @@ class JobKind(str, Enum):
     YARA_SCAN = "yara_scan"
     GHIDRA_DECOMPILE = "ghidra_decompile"
     DETONATE = "detonate"
+    SIGMA_SWEEP = "sigma_sweep"
     AI_SUMMARISE = "ai_summarise"
 
 

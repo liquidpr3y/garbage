@@ -27,6 +27,7 @@ dependencies = [
 # these: see intake/identify.py and intake/hashing.py. Keeping them optional is what
 # lets CI run with no native toolchain.
 analysis = ["py-tlsh>=4.5", "lief>=0.14", "python-magic>=0.4.27", "yara-python>=4.3"]
+sigma = ["pysigma>=0.11", "pysigma-backend-elasticsearch>=1.1"]
 dev = ["pytest>=8", "fakeredis>=2.21"]
 
 [project.scripts]
@@ -38,6 +39,14 @@ necropsy = "necropsy.plugin:MODULE"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+necropsy = [
+    "analysis/rules/*.yar",
+    "analysis/ghidra_scripts/*.py",
+    "attack/data/*.json",
+    "attack/rules/*.yml",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

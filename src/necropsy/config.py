@@ -74,6 +74,9 @@ class Settings(BaseSettings):
     sandbox_pcap_interface: str | None = None
     tcpdump_path: str | None = None
 
+    # Extra Sigma rule files or directories, e.g. a SigmaHQ checkout.
+    sigma_rule_paths: Annotated[list[str], NoDecode] = Field(default_factory=list)
+
     # Elastic: the lab's existing cluster. Phase 3 reads guest telemetry back
     # out of it; Phase 4 adds the findings mirror.
     elastic_verify_certs: bool = True
@@ -95,7 +98,7 @@ class Settings(BaseSettings):
     def _expand(cls, v: Path) -> Path:
         return Path(os.path.expandvars(str(v))).expanduser()
 
-    @field_validator("target_arches", "yara_rule_paths", mode="before")
+    @field_validator("target_arches", "yara_rule_paths", "sigma_rule_paths", mode="before")
     @classmethod
     def _split(cls, v: object) -> object:
         if isinstance(v, str):

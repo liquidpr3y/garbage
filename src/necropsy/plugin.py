@@ -29,8 +29,10 @@ class ModuleDescriptor:
             raise RuntimeError(f"host is missing required capabilities: {sorted(missing)}")
 
         from necropsy.runtime import set_host
+        from necropsy.sinks import install_if_configured
 
         set_host(host)
+        install_if_configured()
         mount_at = prefix or f"/api/v1/{self.slug}"
         app.include_router(self.router, prefix=mount_at)
         return mount_at

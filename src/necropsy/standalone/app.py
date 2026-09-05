@@ -7,6 +7,7 @@ differ. See docs/HOST_INTEGRATION.md S1.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import FastAPI
@@ -16,6 +17,8 @@ from necropsy import __version__
 from necropsy.api.router import router as api_router
 from necropsy.runtime import set_host
 from necropsy.standalone.host import StandaloneHost
+
+log = logging.getLogger(__name__)
 
 API_PREFIX = "/api/v1/necropsy"
 
@@ -44,6 +47,11 @@ def create_app(host: Any | None = None, *, create_schema: bool = False) -> FastA
         from necropsy.db.session import create_all
 
         create_all()
+
+    # Mirror findings into Elastic when the lab's cluster is configured.
+    from necropsy.sinks import install_if_configured
+
+    log.info("finding sink: %s", install_if_configured())
 
     app.include_router(api_router, prefix=API_PREFIX)
     return app
